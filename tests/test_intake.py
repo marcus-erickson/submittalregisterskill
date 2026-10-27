@@ -103,6 +103,29 @@ id1, id1b, id2 = (run(INTAKE, "id", f).stdout.strip() for f in (f1, f1, f2))
 check("file id is stable for the same file and differs for different content",
       len(id1) == 16 and id1 == id1b and id1 != id2)
 
+# 1d. wording differences that came up on real-looking documents
+more = [
+    E(51, "returned", "2026-10-22", section="32 13 73", title="Paving Joint Sealants - Product Data", types="PD", action="approved"),
+    E(52, "received", "2026-10-01", section="03 30 53", title="Concrete design mixture", types="TEST"),
+]
+matched, _ = run_events(more, "wording", dry=True)
+v3 = {e["source_id"]: e for e in matched}
+check("plural and singular wording match (Joint Sealants vs joint sealant)",
+      v3["m51"]["verdict"] == "confident" and v3["m51"]["chosen"] == "32 13 73-2", str(v3["m51"]["candidates"]))
+check("singular title still finds the plural line", v3["m52"]["chosen"] == "03 30 53-2")
+
+# 1e. the matcher is never confidently wrong on the example registers, whatever the wording noise
+sys.path.insert(0, os.path.join(ROOT, "tests"))
+import eval_matching  # noqa: E402
+bad, full_ok, full_n = 0, 0, 0
+for reg_name in ("health-sciences-drainage", "radiology-volb"):
+    totals, wrong, _n = eval_matching.evaluate(reg_name)
+    bad += len(wrong)
+    full_ok += totals["full"]["right"]
+    full_n += totals["full"]["n"]
+check("no wrong confident matches across all wording variants on both example registers", bad == 0, f"{bad} wrong")
+check("exact wording is matched confidently for every line", full_ok == full_n, f"{full_ok} of {full_n}")
+
 # 2. apply the confident ones: submitted, then returned approved as noted
 matched, r = run_events([e for e in events if e["source_id"] in ("m1", "m2", "m6")], "apply1")
 check("received sets status, date and ball in court",

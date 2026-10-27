@@ -70,8 +70,7 @@ ACTIONS = {
 }
 REOPEN = ("Revise/Resubmit", "Rejected")
 STOP = {"the", "and", "for", "with", "from", "per", "all", "shall", "section", "submittal", "submittals",
-        "product", "data", "shop", "drawing", "drawings", "sample", "samples", "type", "types",
-        "review", "submit", "provide", "required", "requirements", "specification", "specifications"}
+        "submit", "provide", "required", "requirement", "review"}
 LOG_FIELDS = ["applied_at", "result", "key", "source_id", "kind", "sub_no", "section", "from_status",
               "to_status", "rev", "date", "note", "source_name"]
 
@@ -86,8 +85,22 @@ def norm_section(s):
     return re.sub(r"\s+", " ", s)
 
 
+def stem(w):
+    """Light plural handling, so sealant and sealants count as the same word."""
+    if len(w) > 4 and w.endswith("ies"):
+        return w[:-3] + "y"
+    if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "us")):
+        return w[:-1]
+    return w
+
+
 def tokens(text):
-    return {w for w in re.findall(r"[a-z0-9]{3,}", str(text or "").lower()) if w not in STOP}
+    out = set()
+    for w in re.findall(r"[a-z0-9]{3,}", str(text or "").lower()):
+        st = stem(w)
+        if w not in STOP and st not in STOP:
+            out.add(st)
+    return out
 
 
 def type_set(text):
@@ -95,15 +108,21 @@ def type_set(text):
 
 
 def score(event, item):
+    """(score, recall, precision). Recall is the share of the document's own words found in the line.
+
+    The score leans on recall: a line that has every word the document uses is a better fit
+    than a shorter line that has most of them. Precision (how much of the line the document
+    covers) only breaks near ties, so a short line is not favored for being short.
+    """
     a, b = tokens(event.get("title")), tokens(item["description"])
     inter = len(a & b)
-    overlap = inter / min(len(a), len(b)) if a and b else 0.0
-    jac = inter / len(a | b) if a and b else 0.0
-    s = 0.6 * overlap + 0.4 * jac
+    recall = inter / len(a) if a else 0.0
+    precision = inter / len(b) if b else 0.0
+    s = 0.9 * recall + 0.1 * precision
     et = type_set(event.get("types"))
     if et:
         s += 0.1 if et & type_set(item["types"]) else -0.15
-    return max(0.0, min(1.0, s)), overlap
+    return max(0.0, min(1.0, s)), recall, precision
 
 
 def candidate(item, s):
@@ -143,11 +162,22 @@ def match_event(event, items, rules=None):
         return ([candidate(i, s) for s, i in ranked if s > 0], "none", "",
                 f"section {section} is not in the register")
     ranked = sorted(((*score(event, i), i) for i in pool), key=lambda x: -x[0])
-    cands = [candidate(i, s) for s, _, i in ranked[:3]]
+    cands = [candidate(i, s) for s, _, _, i in ranked[:3]]
     if not ranked:
         return [], "none", "", "the register has no lines"
-    top, top_overlap, top_item = ranked[0]
+    top, top_overlap, top_prec, top_item = ranked[0]
     gap = top - ranked[1][0] if len(ranked) > 1 else 1.0
+    if len(ranked) > 1:
+        second = ranked[1]
+        # the document quotes one line's wording exactly (at least three meaningful words, so a
+        # generic title cannot qualify) and no other line does
+        exact = lambda r: r[1] >= 0.99 and r[2] >= 0.99
+        if len(tokens(event.get("title"))) >= 3 and exact(ranked[0]) and not exact(second):
+            return cands, "confident", top_item["sub_no"], "wording matches one line exactly"
+        if top_overlap >= 0.99 and second[1] >= 0.99:
+            return cands, "ambiguous", "", "more than one line contains every word the document uses"
+        if top_overlap >= 0.99 and second[1] < 0.99 and len(tokens(event.get("title"))) >= 3:
+            return cands, "confident", top_item["sub_no"], "only one line contains every word the document uses"
     et = type_set(event.get("types"))
     if section and len(pool) == 1:
         ok = not et or et & type_set(top_item["types"]) or top_overlap >= 0.3

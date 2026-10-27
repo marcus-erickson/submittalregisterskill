@@ -115,4 +115,4 @@ Give the workbook and a short summary: how many documents were read, how many re
 - This does not check whether a submittal meets the spec. It records what happened to it.
 - It does not send email or reply to anyone.
 - It does not read Gmail on purpose. Mail from many projects lands in one inbox, and a safe version needs each project tied to its own label or sender list first.
-- The matching thresholds were tuned on one register. When a real register produces wrong confident matches or too many questions, tell the person so they can adjust the thresholds in `intake.py`.
+- The matcher was tested on two public example registers using each line's own wording with noise (plurals, trimmed titles). It made no wrong confident matches there, but it has not seen real project paperwork. If a real register produces a wrong confident match or too many questions, tell the person, because the rules in `match_event` in `intake.py` can be adjusted.

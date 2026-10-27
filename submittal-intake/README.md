@@ -16,4 +16,8 @@ It works with registers built by the `submittal-register` skill. The download bu
 
 ## Limits
 
-No OCR, so scanned stamps are read by eye and worth a second look. Reading from Gmail is left out on purpose until each project can be tied to its own label or sender list. The matching thresholds were tuned on one register and will need adjusting on real documents.
+No OCR, so scanned stamps are read by eye and worth a second look. Reading from Gmail is left out on purpose until each project can be tied to its own label or sender list. The matcher was tested on two public example registers and on the sample documents, not on real project paperwork yet.
+
+## Try it
+
+`examples/sample-documents/` has four fictional documents for the example project: a transmittal, a typed review return where the action is only visible as a marked box, a scanned stamped cover sheet with no text layer, and a transmittal for a different project. Upload them with the example register from `submittal-register` to see matching, a held-back wrong-project document and a conflict. `make_samples.py` regenerates them.
