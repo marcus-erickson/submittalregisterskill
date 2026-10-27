@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
-"""Match submittal emails to register lines and apply status updates to register.json.
+"""Match submittal documents to register lines and apply status updates to register.json.
 
-Claude reads the emails and writes events.json. This script does the parts that should be
-the same every time: matching an event to a register line with a confidence verdict,
-checking that the status change makes sense, writing the update, and keeping an audit log.
+Claude reads each uploaded document (a transmittal, a stamped review return, an email saved
+as a PDF) and writes events.json. This script does the parts that should be the same every
+time: matching an event to a register line with a confidence verdict, checking that the
+status change makes sense, writing the update, and keeping an audit log.
 
 Usage:
+  intake.py id FILE                      print a stable id for an uploaded file
   intake.py match REGISTER.json EVENTS.json -o MATCHES.json
   intake.py apply REGISTER.json MATCHES.json --log intake-log.csv [--dry-run]
 
 events.json:
   {"events": [{
-      "email_id": "18f2...",            required, the Gmail message id (stops double-counting)
+      "source_id": "3fa9c1d2e07b4a55",  required, from `intake.py id FILE` (stops double-counting)
       "kind": "received" | "returned",  required
-      "date": "2026-10-27",             required, the date on the email
-      "section": "07 21 00",            spec section, if the email gives one
-      "title": "Batt insulation",       what the email calls the submittal
-      "types": "PD",                    type code if the email says (PD, SD, SAM, ...)
-      "sub_no": "07 21 00-1",           the register number, if the email uses one
+      "date": "2026-10-27",             required, the transmittal date or the review stamp date
+      "section": "07 21 00",            spec section, if the document gives one
+      "title": "Batt insulation",       what the document calls the submittal
+      "types": "PD",                    type code if the document says (PD, SD, SAM, ...)
+      "sub_no": "07 21 00-1",           the register number, if the document uses one
       "action": "approved" | "approved_as_noted" | "revise_resubmit" | "rejected",  returned only
       "reviewer": "Architect",          received: who the ball goes to
       "submitter": "Contractor",        returned: who the ball goes back to
       "comment": "...",                 optional, appended to Notes
-      "subject": "...", "from": "...",  optional, kept in the log
+      "source_name": "...",             optional, the file name, kept in the log
+      "project_hint": "...",            optional, the project name or number the document shows
       "confirm": false                  true to apply an out-of-order change a person approved
   }]}
 
@@ -36,6 +39,7 @@ person, and a status change that is out of order is reported as a conflict, not 
 """
 import argparse
 import csv
+import hashlib
 import json
 import os
 import re
@@ -68,8 +72,8 @@ REOPEN = ("Revise/Resubmit", "Rejected")
 STOP = {"the", "and", "for", "with", "from", "per", "all", "shall", "section", "submittal", "submittals",
         "product", "data", "shop", "drawing", "drawings", "sample", "samples", "type", "types",
         "review", "submit", "provide", "required", "requirements", "specification", "specifications"}
-LOG_FIELDS = ["applied_at", "result", "key", "email_id", "kind", "sub_no", "section", "from_status",
-              "to_status", "rev", "date", "note", "subject"]
+LOG_FIELDS = ["applied_at", "result", "key", "source_id", "kind", "sub_no", "section", "from_status",
+              "to_status", "rev", "date", "note", "source_name"]
 
 
 # ------------------------------------------------------------------ matching
@@ -107,13 +111,31 @@ def candidate(item, s):
             "description": item["description"], "status": item["status"], "rev": item["rev"]}
 
 
-def match_event(event, items):
-    """Return (candidates, verdict, chosen, reason). Verdict: confident, ambiguous or none."""
+def wrong_project(hint, rules):
+    """True when the project the document names clearly is not this register's project."""
+    hint = str(hint or "").strip()
+    if not hint:
+        return False
+    name = f"{rules.get('project', '')} {rules.get('project_number', '')}"
+    words = {t for t in tokens(hint) if re.search(r"[a-z]", t)}
+    if words:  # compare names to names
+        return bool(tokens(name)) and not (words & tokens(name))
+    number = re.sub(r"\D", "", hint)  # a bare project number: compare only when the register has one
+    have = re.sub(r"\D", "", str(rules.get("project_number", "")))
+    return bool(number and have) and number not in have and have not in number
+
+
+def match_event(event, items, rules=None):
+    """Return (candidates, verdict, chosen, reason). Verdict: confident, ambiguous, none or wrong_project."""
+    if wrong_project(event.get("project_hint"), rules or {}):
+        return ([], "wrong_project", "",
+                f"the document names project '{event['project_hint']}', but this register is for "
+                f"'{(rules or {}).get('project', '')}'")
     want = str(event.get("sub_no") or "").strip().upper()
     if want:
         hit = [i for i in items if i["sub_no"].strip().upper() == want]
         if hit:
-            return [candidate(hit[0], 1.0)], "confident", hit[0]["sub_no"], "register number given in the email"
+            return [candidate(hit[0], 1.0)], "confident", hit[0]["sub_no"], "register number given in the document"
     section = norm_section(event.get("section"))
     pool = [i for i in items if norm_section(i["section"]) == section] if section else list(items)
     if section and not pool:
@@ -134,7 +156,7 @@ def match_event(event, items):
     if section and top >= 0.45 and gap >= 0.2:
         return cands, "confident", top_item["sub_no"], "section and title match"
     if not section and top >= 0.6 and gap >= 0.25:
-        return cands, "confident", top_item["sub_no"], "title match, no section in the email"
+        return cands, "confident", top_item["sub_no"], "title match, no section in the document"
     return cands, "ambiguous", "", "more than one line fits, or the title match is weak"
 
 
@@ -143,16 +165,17 @@ def cmd_match(a):
     events = json.load(open(a.events, encoding="utf-8"))["events"]
     out = []
     for ev in events:
-        cands, verdict, chosen, reason = match_event(ev, reg["items"])
+        cands, verdict, chosen, reason = match_event(ev, reg["items"], reg["rules"])
         out.append({**ev, "candidates": cands, "verdict": verdict, "chosen": chosen, "reason": reason})
     with open(a.o, "w", encoding="utf-8") as fh:
         json.dump({"events": out}, fh, indent=1, ensure_ascii=False)
         fh.write("\n")
-    counts = {v: sum(1 for e in out if e["verdict"] == v) for v in ("confident", "ambiguous", "none")}
-    print(f"{len(out)} events: {counts['confident']} confident, {counts['ambiguous']} ambiguous, {counts['none']} no match")
+    counts = {v: sum(1 for e in out if e["verdict"] == v) for v in ("confident", "ambiguous", "none", "wrong_project")}
+    print(f"{len(out)} events: {counts['confident']} confident, {counts['ambiguous']} ambiguous, {counts['none']} no match, "
+          f"{counts['wrong_project']} look like another project")
     for e in out:
         if e["verdict"] != "confident":
-            print(f"  needs a person: {e.get('subject') or e.get('title')} ({e['reason']})")
+            print(f"  needs a person: {e.get('source_name') or e.get('title')} ({e['reason']})")
             for c in e["candidates"]:
                 print(f"      {c['sub_no']}  {c['score']}  {c['description'][:70]}")
 
@@ -218,16 +241,16 @@ def cmd_apply(a):
     events.sort(key=lambda e: (model.iso(e.get("date")), 0 if e.get("kind") == "received" else 1))
     for ev in events:
         sub_no = ev.get("chosen") or ""
-        key = f"{ev.get('email_id')}|{sub_no}|{ev.get('kind')}"
-        base = {"applied_at": now, "key": key, "email_id": ev.get("email_id", ""), "kind": ev.get("kind", ""),
+        key = f"{ev.get('source_id')}|{sub_no}|{ev.get('kind')}"
+        base = {"applied_at": now, "key": key, "source_id": ev.get("source_id", ""), "kind": ev.get("kind", ""),
                 "sub_no": sub_no, "section": ev.get("section", ""), "date": ev.get("date", ""),
-                "subject": ev.get("subject", ""), "from_status": "", "to_status": "", "rev": ""}
-        if not ev.get("email_id"):
-            result, note = "unresolved", "no email_id, so this could not be kept out of a second run"
+                "source_name": ev.get("source_name", ""), "from_status": "", "to_status": "", "rev": ""}
+        if not ev.get("source_id"):
+            result, note = "unresolved", "no source_id, so this could not be kept out of a second run"
         elif not sub_no or sub_no not in by_no:
             result, note = "unresolved", ev.get("reason") or "no register line chosen"
         elif key in done:
-            result, note = "skipped", "this email was already applied"
+            result, note = "skipped", "this document was already applied for that line"
         else:
             item = by_no[sub_no]
             before = item["status"]
@@ -260,15 +283,26 @@ def cmd_apply(a):
           f"conflicts {tally.get('conflict', 0)}; unresolved {tally.get('unresolved', 0)}")
     for r in rows:
         if r["result"] != "applied":
-            print(f"  {r['result']}: {r['subject'] or r['email_id']} -> {r['sub_no'] or '?'}: {r['note']}")
+            print(f"  {r['result']}: {r['source_name'] or r['source_id']} -> {r['sub_no'] or '?'}: {r['note']}")
     for r in rows:
         if r["result"] == "applied":
             print(f"  {r['sub_no']}: {r['note']}")
 
 
+def cmd_id(a):
+    h = hashlib.sha256()
+    with open(a.file, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    print(h.hexdigest()[:16])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    i = sub.add_parser("id", help="print a stable id for an uploaded file")
+    i.add_argument("file")
+    i.set_defaults(fn=cmd_id)
     m = sub.add_parser("match")
     m.add_argument("register")
     m.add_argument("events")

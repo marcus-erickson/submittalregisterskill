@@ -49,7 +49,7 @@ check("register built", os.path.exists(REG))
 
 
 def E(i, kind, day, **kw):
-    return {"email_id": f"m{i}", "kind": kind, "date": day, "subject": f"test {i}", **kw}
+    return {"source_id": f"m{i}", "kind": kind, "date": day, "source_name": f"test-{i}.pdf", **kw}
 
 
 # 1. matching verdicts, no changes yet
@@ -62,7 +62,7 @@ events = [
     E(6, "received", "2026-10-01", sub_no="32 12 16-1", reviewer="Architect"),
 ]
 matched, _ = run_events(events, "verdicts", dry=True)
-v = {e["email_id"]: e for e in matched}
+v = {e["source_id"]: e for e in matched}
 check("single line in the section matches confidently", v["m1"]["verdict"] == "confident" and v["m1"]["chosen"] == "31 20 00-1")
 check("compact section number 033053 normalizes and picks the TEST line",
       v["m2"]["verdict"] == "confident" and v["m2"]["chosen"] == "03 30 53-2", str(v["m2"]["candidates"]))
@@ -73,8 +73,38 @@ check("section not in the register: no match, nothing chosen", v["m5"]["verdict"
 check("register number in the email is used", v["m6"]["verdict"] == "confident" and v["m6"]["chosen"] == "32 12 16-1")
 check("dry run changed nothing", item("31 20 00-1")["status"] == "Not Started" and not os.path.exists(LOG))
 
+# 1b. the person picked a register, but the document may belong to another project
+proj = [
+    E(41, "received", "2026-10-01", section="31 20 00", title="Material test reports", types="TEST", project_hint="Westside Elementary Renovation"),
+    E(42, "received", "2026-10-01", section="31 20 00", title="Material test reports", types="TEST", project_hint="Northeast Texas Community College, Health Sciences Lab"),
+    E(43, "received", "2026-10-01", section="31 20 00", title="Material test reports", types="TEST", project_hint="24-117"),
+]
+matched, _ = run_events(proj, "project", dry=True)
+v2 = {e["source_id"]: e for e in matched}
+check("document naming a different project is held back, nothing chosen",
+      v2["m41"]["verdict"] == "wrong_project" and not v2["m41"]["chosen"], v2["m41"]["reason"])
+check("document naming this project passes", v2["m42"]["verdict"] == "confident")
+check("a bare project number is not compared when the register has none", v2["m43"]["verdict"] == "confident")
+withnum = json.load(open(REG))
+withnum["rules"]["project_number"] = "2025-203"
+numreg = os.path.join(TMP, "numbered.json")
+json.dump(withnum, open(numreg, "w"))
+ev_n = os.path.join(TMP, "num-events.json")
+json.dump({"events": [proj[2]]}, open(ev_n, "w"))
+run(INTAKE, "match", numreg, ev_n, "-o", os.path.join(TMP, "num-matches.json"))
+check("a bare project number that differs from the register's number is held back",
+      json.load(open(os.path.join(TMP, "num-matches.json")))["events"][0]["verdict"] == "wrong_project")
+
+# 1c. file ids are stable and content based
+f1, f2 = os.path.join(TMP, "a.pdf"), os.path.join(TMP, "b.pdf")
+open(f1, "wb").write(b"transmittal one")
+open(f2, "wb").write(b"transmittal two")
+id1, id1b, id2 = (run(INTAKE, "id", f).stdout.strip() for f in (f1, f1, f2))
+check("file id is stable for the same file and differs for different content",
+      len(id1) == 16 and id1 == id1b and id1 != id2)
+
 # 2. apply the confident ones: submitted, then returned approved as noted
-matched, r = run_events([e for e in events if e["email_id"] in ("m1", "m2", "m6")], "apply1")
+matched, r = run_events([e for e in events if e["source_id"] in ("m1", "m2", "m6")], "apply1")
 check("received sets status, date and ball in court",
       item("31 20 00-1")["status"] == "Submitted" and item("31 20 00-1")["actual_submit"] == "2026-10-01"
       and item("31 20 00-1")["ball_in_court"] == "Architect", r.stdout)
