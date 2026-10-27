@@ -1,0 +1,23 @@
+{
+  "columns": [
+    "sub_no",
+    "rev",
+    "description",
+    "section",
+    "types",
+    {"key": "x_trade", "header": "Trade"},
+    "install_date",
+    "lead",
+    "review",
+    "prep",
+    "required_submit",
+    "actual_submit",
+    "approval_date",
+    {"key": "status", "header": "Review Status", "width": 20},
+    {"key": "ball_in_court", "header": "Ball in Court", "aliases": ["BIC"]},
+    "days_to_due",
+    "notes"
+  ],
+  "freeze_after": "description",
+  "print_through": "ball_in_court"
+}

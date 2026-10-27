@@ -21,7 +21,7 @@ An Excel workbook with:
 1. `scripts/extract.py` reads the table of contents, locates every section in the PDF, finds each submittals article and splits it into items. It tags rows from the Division 01 procedure sections separately, because those hold rules rather than items.
 2. Claude reads the Division 01 procedures and records the project rules, then works through the gaps the script reports: sections with no rows, possible requirements buried in Parts 2 and 3, closeout items, and administrative submittals.
 3. Claude merges related items, numbers them with the project's format, and writes a reviewed CSV.
-4. `scripts/build_register.py` builds the workbook.
+4. `scripts/build_register.py` builds the workbook. The register is held as plain data first, so the same register can also be written as CSV, JSON or Google Sheets values, with the columns set by a layout file (`scripts/columns.default.json`). `tests/test_formats.py` checks that a register survives every format and that the date math matches the Excel formulas.
 
 `SKILL.md` has the full instructions Claude follows.
 

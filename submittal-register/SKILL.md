@@ -68,8 +68,11 @@ Save your reviewed rows as `work/reviewed.csv` with these columns (extra columns
 
 ```bash
 python3 scripts/build_register.py work/reviewed.csv work/Submittal-Register.xlsx \
-  --rules work/rules.json [--install-dates work/install-dates.csv]
+  --rules work/rules.json --save-json work/register.json \
+  [--install-dates work/install-dates.csv] [--columns layout.json]
 ```
+
+Excel is the default, not the only option. See "Formats and layouts" below for CSV, Google Sheets and custom columns. Always keep `work/register.json` (the `--save-json` file) with the workbook: it holds the register as plain data, so the same register can be rebuilt in any format later.
 
 Then recalculate and check for formula errors. If a recalculation script is available in your environment, run it. Otherwise open the file with LibreOffice headless and confirm no cell shows an error. The workbook has these sheets:
 
@@ -89,6 +92,23 @@ Then recalculate and check for formula errors. If a recalculation script is avai
 ### 8. Tell the person
 
 Give the file, then a short summary: how many submittals, how many sections, what you added beyond the parser, what is in the Review Queue and why, and which rules you applied from Division 01. Name anything you could not determine, such as lead times or install dates.
+
+## Formats and layouts
+
+The register is plain data (`scripts/register_model.py`). Output formats are adapters in `scripts/adapters/`, and the columns come from a layout file. `build_register.py` converts between any of them, and it accepts a reviewed CSV, a register `.xlsx`, a register `.csv` or a `register.json` as input.
+
+| Format | Command | Notes |
+| --- | --- | --- |
+| Excel | `build_register.py in work/Register.xlsx` | Default. Live date formulas, status dropdown, all five sheets. |
+| JSON | `build_register.py in work/register.json` | Lossless. Keep this between sessions. |
+| CSV | `build_register.py in work/Register.csv` | An export. Calculated dates are values, and the project default review time is written into each row. Not a good place to keep a register. |
+| Google Sheets | `build_register.py in work/register.sheets.json --format sheets` | Writes the cell values. Create the spreadsheet, then send each tab's `values` with the Sheets connector using USER_ENTERED so formulas and dates parse. Not yet tried against a live connector. |
+
+To change the columns, copy `scripts/columns.default.json`, edit it and pass `--columns`. A column is a key (default header and width) or an object with `key`, `header`, `width` and `aliases`. Known keys are listed in `scripts/columns.py`. Keys that start with `x_` are custom text columns, for example `x_trade`. `examples/columns-tracking.json` shows a layout with Ball in Court and a custom Trade column. Rules to remember:
+
+- A field with no column in the layout is not written to Excel or CSV. Ball in Court, for instance, needs a layout that includes it.
+- Calculated columns (required dates, days to due) are dropped with a warning if the columns they depend on are missing.
+- When reading a workbook that came from somewhere else, pass a layout whose headers (or aliases) match its header row.
 
 ## Updating after an addendum
 

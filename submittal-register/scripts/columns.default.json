@@ -1,0 +1,26 @@
+{
+  "columns": [
+    "sub_no",
+    "rev",
+    "description",
+    "section",
+    "section_title",
+    "types",
+    "ref",
+    "install_date",
+    "lead",
+    "review",
+    "prep",
+    "required_approval",
+    "required_submit",
+    "actual_submit",
+    "approval_date",
+    "status",
+    "days_to_due",
+    "origin",
+    "notes",
+    "full"
+  ],
+  "freeze_after": "description",
+  "print_through": "status"
+}
