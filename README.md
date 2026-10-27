@@ -6,7 +6,7 @@ A script reads the manual's structure and pulls every submittal requirement it c
 
 ## Try it
 
-1. Copy the `submittal-register` folder into your Claude skills (in Claude Code, `.claude/skills/`).
+1. [Download the zip](downloads/submittal-register.zip), or copy the `submittal-register` folder into your Claude skills (in Claude Code, `.claude/skills/`).
 2. Attach a project manual PDF and ask for a submittal register.
 3. Optionally give install dates by spec section so the workbook can calculate required submit dates.
 
@@ -20,6 +20,7 @@ See [submittal-register/README.md](submittal-register/README.md) for what the sc
 |---|---|
 | `submittal-register/` | The skill: `SKILL.md`, scripts, reference files, worked examples |
 | `docs/` | Test log and a detailed analysis of one 661-page manual |
+| `downloads/` | `submittal-register.zip`, rebuilt with `tools/build-zip.sh` after any change to the skill |
 | `tests/` | `regress.py`, which re-runs the extractor on your own manuals and compares counts to a baseline |
 
 ## Status
