@@ -1,0 +1,18 @@
+{
+  "project": "Health Sciences Simulation Lab Drainage Improvements, Northeast Texas Community College",
+  "review_weeks": 2.14,
+  "prep_weeks": 1,
+  "numbering_note": "Section number without spaces, a decimal point, then a sequential number (061000.01). Resubmittals add a decimal point and an alphabetic suffix (061000.01.A).",
+  "copies_format": "Product data: two hard copies and one electronic copy. Shop drawings: two opaque copies, sheets 8-1/2 x 11 up to 30 x 40 inches. Transmit each submittal with its own transmittal form (AIA G810 or approved equal). Progress schedule: six copies plus one PDF.",
+  "rules_source": "Section 01 33 00 Submittal Procedures (pages 62 to 67)",
+  "division01_notes": [
+    "Initial review is 15 days (about 2.1 weeks) from the Architect's receipt, and resubmittal review is another 15 days. Review time is the default on the Register sheet; change it on this sheet.",
+    "No extension of Contract Time is allowed for submittals sent too late to be processed, including resubmittals.",
+    "Resubmit until the submittal is marked No Exception Taken. Use only final submittals marked No Exceptions Taken for construction.",
+    "All submittals go through the Contractor. The Architect returns submittals received from any other source without review.",
+    "Package each submittal individually and transmit it with a transmittal form.",
+    "Highlight, encircle or otherwise identify deviations from the Contract Documents.",
+    "Substitution requests and comparable product requests (Section 01 60 00) are contractor-initiated and are not in this register.",
+    "Prep time of 1 week is an assumption, not a spec requirement."
+  ]
+}

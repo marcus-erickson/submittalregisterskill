@@ -1,0 +1,21 @@
+{
+  "project": "Patient Care Pavilion, Radiology Room, E.D. (Primera Design Associates, Comm. #1240, Fort Worth, Texas)",
+  "review_weeks": 2.14,
+  "prep_weeks": 1,
+  "numbering_note": "Specification Section number, a sequential alphanumeric identifier, and an alphanumeric suffix for each resubmittal (for example 092913.01, then 092913.01.A).",
+  "copies_format": "Submit as PDF uploaded to the web-based project management software, with a paper transmittal when required. Samples for verification: three sets (Architect keeps two). Shop drawings and design data: six copies plus one electronic copy where a section states a count. Action and informational submittals from the same section go in separate packages.",
+  "rules_source": "Section 01 33 00 Submittal Procedures (pages 48 to 53), Section 01 77 00 Closeout Procedures, Section 01 29 00 Payment Procedures",
+  "division01_notes": [
+    "Initial review is 15 days (about 2.1 weeks) from the Architect's receipt. Each resubmittal review is another 15 days. Where sequential review by consultants or the Owner is indicated, allow 21 days for the initial review.",
+    "No extension of Contract Time is allowed for submittals sent too late to be processed, including resubmittals.",
+    "Initial submittal schedule must cover the first 60 days of construction and any long-lead items, and goes in with the startup construction schedule. The final schedule goes in with the first complete construction schedule.",
+    "Submit all items for a section together unless the approved submittal schedule allows partial submittals. Submit product data before shop drawings, and before or with samples.",
+    "Indicate deviations from the Contract Documents on each submittal, and identify options that need the Architect's selection.",
+    "The Architect returns without review any submittal that is incomplete, not reviewed and approved by the Contractor, received from anyone but the Contractor, or not required by the Contract Documents.",
+    "Use only final action submittals marked with the Architect's approval notation for construction.",
+    "Closeout items are due at least 10 days before the Substantial Completion inspection request.",
+    "Substitution requests (Section 01 25 00) are contractor-initiated and are not in this register.",
+    "Fire protection piping and sprinkler shop drawings go to the local Fire Marshal and the Owner's insurance underwriter before the Architect.",
+    "Prep time of 1 week is an assumption, not a spec requirement."
+  ]
+}

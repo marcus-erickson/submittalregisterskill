@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+# Project manuals are not redistributed. Keep your own PDFs and working files out of the repo.
+*.pdf
+work/
+SampleSpecs/
+tests/manuals.json
+tests/baseline.json
