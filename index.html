@@ -125,6 +125,7 @@ footer a{color:#fff}
     </a>
     <nav class="top" aria-label="Primary">
       <a class="hide" href="#how">How it works</a>
+      <a class="hide" href="#intake">Keep it current</a>
       <a class="hide" href="#results">Results</a>
       <a class="hide" href="#verify">Verify</a>
       <a class="gh" href="https://github.com/marcus-erickson/submittalregisterskill">GitHub</a>
@@ -137,15 +138,16 @@ footer a{color:#fff}
     <div>
       <span class="eyebrow">An open source Claude skill for construction teams</span>
       <h1>From project manual to submittal register</h1>
-      <p class="lead">Give Claude a specification PDF. It finds every submittal requirement, applies the project's Division 01 rules, and builds an Excel register where each row cites its spec section, paragraph and page.</p>
+      <p class="lead">Give Claude a specification PDF. It finds every submittal requirement, applies the project's Division 01 rules, and builds a register where each row cites its spec section, paragraph and page. When transmittals and stamped returns come in, a second skill updates the register for you.</p>
       <div class="cta">
         <a class="btn primary" href="downloads/submittal-register.zip" download>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
-          Download the skill (.zip)
+          Register skill (.zip)
         </a>
+        <a class="btn ghost" href="downloads/submittal-intake.zip" download>Intake skill (.zip)</a>
         <a class="btn ghost" href="https://github.com/marcus-erickson/submittalregisterskill">View source on GitHub</a>
       </div>
-      <p class="micro">Free, MIT license. Needs Python 3.9+, pdftotext and openpyxl.</p>
+      <p class="micro">Free, MIT license. Needs Python 3.9+, pdftotext and openpyxl. The intake zip bundles the register scripts it uses.</p>
     </div>
     <div class="window" aria-label="Example of the register output">
       <div class="bar"><i></i><i></i><i></i><b>Submittal Register.xlsx</b></div>
@@ -182,8 +184,23 @@ footer a{color:#fff}
     <div class="cards">
       <div class="card"><div class="num">1</div><h3>Read the structure</h3><p>A script indexes the manual's sections, finds each submittals article, and splits it into items with the spec section, paragraph and page.</p></div>
       <div class="card"><div class="num">2</div><h3>Apply judgment</h3><p>Claude reads the Division 01 rules, adds closeout and administrative items, merges related ones, and flags what it is unsure about.</p></div>
-      <div class="card"><div class="num">3</div><h3>Build the workbook</h3><p>Register, project rules, review queue and section summary, with date formulas that update when you enter install dates.</p></div>
+      <div class="card"><div class="num">3</div><h3>Build the register</h3><p>The register is stored as plain data and written out as Excel, CSV, JSON or Google Sheets values. The Excel version has project rules, a review queue and a section summary, with date formulas that update when you enter install dates.</p></div>
     </div>
+    <p class="sub" style="margin-top:22px">A column layout file sets which columns appear, their headers and their order, and lets a team add its own, such as Ball in Court or Trade.</p>
+  </div>
+</section>
+
+<section id="intake">
+  <div class="wrap">
+    <p class="kicker">Keep it current</p>
+    <h2>Upload a transmittal or a stamped return, the register updates</h2>
+    <p class="sub">You choose the project by choosing its register, then upload the documents. Claude reads them, and code decides where each change goes and whether it makes sense.</p>
+    <div class="cards">
+      <div class="card"><div class="num">1</div><h3>Read and match</h3><p>Claude turns each document into events: sent for review, or returned approved, approved as noted, revise and resubmit, or rejected. The matcher finds the register line from the spec section and the wording.</p></div>
+      <div class="card"><div class="num">2</div><h3>Ask when unsure</h3><p>Lines that read alike, items that are not in the register, and documents whose project name does not fit the register go to you. Nothing is guessed.</p></div>
+      <div class="card"><div class="num">3</div><h3>Apply and log</h3><p>Status, dates, revision and ball in court are updated, a backup is kept, and every change goes in an audit log. Uploading the same document twice changes nothing.</p></div>
+    </div>
+    <div class="note"><b>How well does the matching work?</b> On two public registers (51 and 243 lines) with the wording shortened, reworded and put in plural, it was never confidently wrong, and it asked a person for a small share of lines that read nearly alike. It has not been tried on real project paperwork yet, so the first real documents are the real test.</div>
   </div>
 </section>
 
@@ -223,6 +240,8 @@ footer a{color:#fff}
           <li>It does not read scanned PDFs. It needs a text layer.</li>
           <li>It runs one file at a time. For split volumes, it lists every section it could not find.</li>
           <li>Submittals written inside construction paragraphs come through as review rows, not finished rows.</li>
+          <li>Intake has no OCR, so scanned stamps are read by eye and are worth a second look. It does not read Gmail yet, because each project needs its own label or sender list first.</li>
+          <li>The Google Sheets output follows the connector's format but has not been run against a live sheet.</li>
         </ul>
       </div>
     </div>
@@ -232,16 +251,20 @@ footer a{color:#fff}
 <section id="try">
   <div class="wrap">
     <p class="kicker">Try it</p>
-    <h2>Three steps</h2>
+    <h2>Four steps</h2>
     <div class="try">
       <ol class="plain">
         <li>Download the zip and unzip it into your Claude skills, or copy the <code>submittal-register</code> folder from GitHub.</li>
         <li>Attach a project manual PDF and ask for a submittal register.</li>
         <li>Optionally give install dates by spec section so required submit dates calculate.</li>
+        <li>Later, add the intake skill, choose the register and upload transmittals or stamped returns. The repository has four fictional sample documents to try it on.</li>
       </ol>
 <pre>python3 scripts/extract.py manual.pdf draft.csv
 python3 scripts/build_register.py reviewed.csv \
-  Register.xlsx --rules rules.json</pre>
+  Register.xlsx --rules rules.json --save-json
+
+python3 scripts/intake.py match register.json events.json -o matches.json
+python3 scripts/intake.py apply register.json matches.json --dry-run</pre>
     </div>
     <div class="note"><b>Check the work.</b> The skill flags what it is unsure about, but a person should confirm those rows and spot-check pages against the manual before the register is issued.</div>
   </div>
@@ -251,7 +274,7 @@ python3 scripts/build_register.py reviewed.csv \
 <footer>
   <div class="wrap">
     <div>Built by Marcus Erickson. MIT license.</div>
-    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Download</a></div>
+    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Register zip</a> · <a href="downloads/submittal-intake.zip" download>Intake zip</a></div>
     <div style="flex-basis:100%;font-size:.84rem;color:#8fa3b0">The public project manuals used for testing are not included in the repository.</div>
   </div>
 </footer>
