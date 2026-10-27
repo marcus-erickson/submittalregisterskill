@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submittal Register Skill</title>
+<meta name="description" content="A Claude skill that turns a construction project manual into a submittal register in Excel, with live date formulas and a review queue.">
+<style>
+:root{--bg:#fafaf7;--ink:#1d2320;--muted:#5a645e;--line:#dcdfd8;--card:#fff;--accent:#1f6f55;--accent-ink:#fff;--soft:#e8f1ec;--warn:#fff4d6}
+@media (prefers-color-scheme:dark){:root{--bg:#141815;--ink:#e8ece9;--muted:#9aa59f;--line:#2b332e;--card:#1b211d;--accent:#5cc49c;--accent-ink:#0d1410;--soft:#1f2b25;--warn:#3a3217}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:56px 16px 72px}
+h1{font-size:clamp(2rem,5vw,2.9rem);line-height:1.15;margin:0 0 16px;letter-spacing:-.02em}
+h2{font-size:1.4rem;margin:48px 0 12px;letter-spacing:-.01em}
+p{margin:0 0 14px}
+.lead{font-size:1.2rem;color:var(--muted);max-width:640px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 8px}
+a.btn{display:inline-block;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;border:1px solid var(--accent)}
+a.primary{background:var(--accent);color:var(--accent-ink)}
+a.secondary{color:var(--accent)}
+a{color:var(--accent)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:8px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.step b{display:block;margin-bottom:4px}
+.step span.n{display:inline-block;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--accent);text-align:center;line-height:26px;font-weight:700;margin-bottom:8px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--accent);font-weight:600;font-size:.78rem}
+.caption{color:var(--muted);font-size:.9rem;margin-top:8px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.fact strong{display:block;font-size:1.8rem;line-height:1.1;color:var(--accent)}
+.note{background:var(--warn);border-radius:10px;padding:14px 18px}
+ul{padding-left:20px;margin:0 0 14px}
+li{margin-bottom:6px}
+footer{margin-top:56px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>From project manual to submittal register</h1>
+<p class="lead">A Claude skill that reads a construction specification, finds every submittal requirement, and builds an Excel register your team can track from day one.</p>
+<div class="cta">
+<a class="btn primary" href="https://github.com/marcus-erickson/submittalregisterskill">View on GitHub</a>
+<a class="btn secondary" href="https://github.com/marcus-erickson/submittalregisterskill/blob/main/docs/verifying-results.md">How to verify the output</a>
+</div>
+
+<h2>How it works</h2>
+<div class="steps">
+<div class="step"><span class="n">1</span><b>A script reads the structure</b>It indexes the manual's sections, finds each submittals article, and splits it into items with the spec section, paragraph and page.</div>
+<div class="step"><span class="n">2</span><b>Claude applies judgment</b>It reads the Division 01 rules, adds closeout and administrative items, merges related ones, and flags anything it is unsure about.</div>
+<div class="step"><span class="n">3</span><b>You get a workbook</b>Register, project rules, review queue and section summary, with date formulas that update when you enter install dates.</div>
+</div>
+
+<h2>What the register looks like</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Sub #</th><th>Description</th><th>Section</th><th>Type</th><th>Spec ref</th></tr></thead>
+<tbody>
+<tr><td>012900.01</td><td>Schedule of values, with draft AIA G703 continuation sheets</td><td>01 29 00 Payment Procedures</td><td><span class="tag">SCHED</span></td><td>1.2.A.2 p.52</td></tr>
+<tr><td>013100.01</td><td>Coordination drawings (if limited space requires maximum utilization of space)</td><td>01 31 00 Project Management and Coordination</td><td><span class="tag">SD</span></td><td>1.4.A p.56</td></tr>
+<tr><td>024116.01</td><td>Proposed protection measures (report with drawings)</td><td>02 41 16 Structure Demolition</td><td><span class="tag">REPORT</span></td><td>1.3.B p.97</td></tr>
+<tr><td>033053.01</td><td>Concrete design mixtures for each mixture</td><td>03 30 53 Miscellaneous Cast-In-Place Concrete</td><td><span class="tag">TEST</span></td><td>1.2.B p.107</td></tr>
+<tr><td>334100.01</td><td>Product data for storm drainage piping and fittings</td><td>33 41 00 Storm Utility Drainage Piping</td><td><span class="tag">PD</span></td><td>1.2.A p.133</td></tr>
+</tbody>
+</table>
+</div>
+<p class="caption">Rows from the worked example in the repository, built from a public drainage project manual. Every row traces to a section, paragraph and page.</p>
+
+<h2>Tested on real manuals</h2>
+<div class="facts">
+<div class="fact"><strong>15</strong>public documents, from a 2-page attachment to a 776-page manual</div>
+<div class="fact"><strong>2,300+</strong>submittal items extracted across the manuals</div>
+<div class="fact"><strong>5 and 6</strong>digit CSI numbering, plus state DOT special specifications</div>
+<div class="fact"><strong>0</strong>lead times guessed. Dates and lead times are always inputs.</div>
+</div>
+
+<h2>What it does not do</h2>
+<ul>
+<li>It does not read scanned PDFs. It needs a text layer.</li>
+<li>It runs one file at a time. A manual split into volumes needs each volume, and the tool lists every section it could not find.</li>
+<li>Submittals written as sentences inside construction paragraphs come through as review rows, not finished rows.</li>
+</ul>
+<p class="note"><b>Check the work.</b> The skill flags what it is unsure about in a Review Queue, but a person should confirm those rows and spot-check pages against the manual before the register is issued.</p>
+
+<h2>Try it</h2>
+<ul>
+<li>Copy the <code>submittal-register</code> folder into your Claude skills.</li>
+<li>Attach a project manual PDF and ask for a submittal register.</li>
+<li>Optionally give install dates by spec section so required submit dates calculate.</li>
+</ul>
+<p>Requires Python 3.9 or newer, <code>pdftotext</code> and <code>openpyxl</code>. MIT license.</p>
+
+<footer>Built by Marcus Erickson. The public project manuals used for testing are not included in the repository.</footer>
+</main>
+</body>
+</html>
