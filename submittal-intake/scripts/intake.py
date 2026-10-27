@@ -49,12 +49,12 @@ from datetime import datetime, timezone
 
 def _register_scripts():
     here = os.path.dirname(os.path.abspath(__file__))
-    for rel in ("../../submittal-register/scripts", "../submittal-register/scripts"):
+    for rel in ("../register-scripts", "../../submittal-register/scripts", "../submittal-register/scripts"):
         p = os.path.normpath(os.path.join(here, rel))
         if os.path.exists(os.path.join(p, "register_model.py")):
             return p
-    sys.exit("Cannot find the submittal-register skill's scripts. Install submittal-intake next to "
-             "submittal-register, because intake reads and writes the same register.")
+    sys.exit("Cannot find the register scripts. They are bundled in submittal-intake/register-scripts "
+             "in the downloaded zip, or in the submittal-register skill installed next to this one.")
 
 
 sys.path.insert(0, _register_scripts())

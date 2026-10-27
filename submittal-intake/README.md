@@ -2,7 +2,7 @@
 
 A Claude skill that keeps a submittal register current from submittal documents. When a submittal goes out for review or comes back approved, approved as noted, revise and resubmit or rejected, you upload the transmittal or the stamped return. Claude reads it, finds the matching register line, and updates its status, dates, revision and ball in court.
 
-It works with registers built by the `submittal-register` skill and must be installed next to it, because both share the register data and the date logic.
+It works with registers built by the `submittal-register` skill. The download bundles the few register scripts it needs, so it installs on its own. In this repository it uses the sibling `submittal-register` folder instead.
 
 ## How it works
 

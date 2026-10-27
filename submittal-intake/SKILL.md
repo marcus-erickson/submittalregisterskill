@@ -5,7 +5,12 @@ description: Update a construction submittal register from a submittal document.
 
 # Submittal Intake
 
-Read an uploaded submittal document and update the matching line in a submittal register: status, dates, revision and ball in court. This skill works on registers built by the `submittal-register` skill and needs that skill's scripts installed next to it.
+Read an uploaded submittal document and update the matching line in a submittal register: status, dates, revision and ball in court. This skill works on registers built by the `submittal-register` skill and uses that skill's scripts. In the downloaded zip they are bundled in `register-scripts/`. In the repository they are in the sibling `submittal-register/scripts/` folder. The commands below use `REG` for whichever one applies:
+
+```bash
+REG=register-scripts            # downloaded zip
+REG=../submittal-register/scripts   # repository
+```
 
 The person chooses the project by choosing the register. Claude never works out which project a document belongs to on its own.
 
@@ -33,10 +38,10 @@ The register is plain data, and the workbook is one view of it.
 
 ```bash
 # the team edits the workbook, so read it fresh whenever it is newer than register.json
-python3 ../submittal-register/scripts/build_register.py Register.xlsx work/register.json
+python3 $REG/build_register.py Register.xlsx work/register.json
 ```
 
-If the register uses a custom layout, pass the same `--columns file` here and in step 6. Intake sets Ball in Court, and a workbook only keeps that field if its layout has the column. If the person's workbook has none, suggest `../submittal-register/examples/columns-tracking.json` and say what it changes before using it.
+If the register uses a custom layout, pass the same `--columns file` here and in step 6. Intake sets Ball in Court, and a workbook only keeps that field if its layout has the column. If the person's workbook has none, suggest `$REG/../examples/columns-tracking.json` and say what it changes before using it.
 
 ### 2. Read each document
 
@@ -95,7 +100,7 @@ python3 scripts/intake.py apply work/register.json work/matches.json --log work/
 ### 6. Rebuild the workbook
 
 ```bash
-python3 ../submittal-register/scripts/build_register.py work/register.json work/Register-YYYY-MM-DD.xlsx [--columns file]
+python3 $REG/build_register.py work/register.json work/Register-YYYY-MM-DD.xlsx [--columns file]
 ```
 
 Save it as a new dated file. A rebuild keeps all data and formulas but not hand formatting added to the old workbook, so do not overwrite the person's file unless they ask. Keep `register.json` and `intake-log.csv` next to the workbook, because the next run starts from them.
