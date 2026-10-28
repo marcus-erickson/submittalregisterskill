@@ -18,7 +18,8 @@ REVIEW_FILL = PatternFill("solid", fgColor="FCE4D6")
 THIN = Side(style="thin", color="BFBFBF")
 BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 
-INPUT_KEYS = ("install_date", "lead", "actual_submit", "approval_date", "status", "notes", "ball_in_court")
+INPUT_KEYS = ("install_date", "lead", "actual_submit", "approval_date", "status", "notes", "ball_in_court",
+              "line_no", "sd", "classification", "paragraph", "transmittal", "action_code", "action_date")
 WRAP_KEYS = ("description", "notes", "section_title")
 REVIEW_FILL_KEYS = ("sub_no", "description", "section", "types", "ref", "origin")
 RULE_LABELS = ["Project", "Default review time (weeks)", "Default prep time (weeks)",
@@ -160,6 +161,8 @@ def write(register, out, layout):
                 v = r["full"]
             elif k == "ball_in_court":
                 v = r["ball_in_court"]
+            elif k in colmod.SPEC_KEYS:
+                v = r.get(k, "")
             else:  # x_ custom column
                 v = r["extra"].get(k, "")
             vals[k] = v
@@ -386,6 +389,8 @@ def read(path, layout):
         for key in ("lead", "review"):
             n = model.num(vals.get(key))
             item[key] = n if n is not None else ""
+        for key in colmod.SPEC_KEYS:
+            item[key] = _cell_text(vals.get(key))
         item["extra"] = {k: _cell_text(v) for k, v in vals.items() if k.startswith("x_")}
         # the orange fill on the Sub # cell is the live "needs a human decision" flag
         fill = sub_cell.fill if sub_cell is not None else None

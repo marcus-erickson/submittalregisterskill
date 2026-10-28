@@ -1,0 +1,27 @@
+{
+  "columns": [
+    {"key": "x_activity", "header": "(a) Activity No", "width": 12},
+    {"key": "transmittal", "header": "(b) Transmittal No", "width": 14},
+    {"key": "section", "header": "(c) Spec Section", "width": 14},
+    {"key": "description", "header": "(d) Description (SD No. and type)", "width": 58},
+    {"key": "paragraph", "header": "(e) Principal Paragraph", "width": 14},
+    {"key": "classification", "header": "(f) Classification", "width": 14},
+    {"key": "review", "header": "Review (wk)", "width": 9},
+    {"key": "lead", "header": "Lead Time (wk)", "width": 10},
+    {"key": "prep", "header": "Prep (wk)", "width": 9},
+    {"key": "required_submit", "header": "(g) Contractor Submit Date", "width": 14},
+    {"key": "required_approval", "header": "(h) Contractor Approval Date", "width": 14},
+    {"key": "install_date", "header": "(i) Contractor Material Date", "width": 14},
+    {"key": "action_code", "header": "(j) Action Code", "width": 10},
+    {"key": "action_date", "header": "(k) Action Date", "width": 12},
+    {"key": "actual_submit", "header": "(l) Date Transmitted", "width": 12},
+    {"key": "x_review_action_1", "header": "(m) Review Action 1", "width": 12},
+    {"key": "x_review_action_2", "header": "(n) Review Action 2", "width": 12},
+    {"key": "x_review_action_3", "header": "(o) Review Action 3", "width": 12},
+    {"key": "x_review_action_4", "header": "(p) Review Action 4", "width": 12},
+    {"key": "approval_date", "header": "(q) Approval Received", "width": 12},
+    {"key": "notes", "header": "(r) Remarks", "width": 34}
+  ],
+  "freeze_after": "description",
+  "print_through": "notes"
+}

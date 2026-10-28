@@ -28,6 +28,8 @@ def item_values(item, layout, rules, today=None):
         "notes": item["notes"] or (item["review_note"] if item["needs_review"] else ""),
         "full": item["full"], "ball_in_court": item["ball_in_court"],
     }
+    for k in colmod.SPEC_KEYS:
+        by_key[k] = item.get(k, "")
     return [by_key[c["key"]] if c["key"] in by_key else item["extra"].get(c["key"], "")
             for c in layout["columns"]]
 
@@ -67,6 +69,8 @@ def read_table(headers, body, layout):
         for key in ("lead", "review"):
             n = model.num(vals.get(key))
             item[key] = n if n is not None else ""
+        for k in colmod.SPEC_KEYS:
+            item[k] = text(k)
         item["extra"] = {k: text(k) for k in vals if k.startswith("x_")}
         items.append(item)
     return items

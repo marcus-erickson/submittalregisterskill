@@ -369,6 +369,7 @@ def extract(pdf, noise=None):
                     "requirement": t,
                     "page": page_of(cp, bounds, sec.start_page, off, " ".join(it["text"].split())),
                     "classification": it.get("classification", ""),
+                    "sd": it.get("sd", ""),
                     "source": ("Division 01 procedure" if is_div01_procedure(sec) else
                                "REVIEW: sentence in SD list" if it.get("sd") and SD_SENTENCE.search(t) else
                                "Submittals article"),
@@ -430,7 +431,7 @@ def leadin_items(text, spans, body_start):
     return out
 
 
-FIELDS = ["section", "section_title", "article", "article_title", "group", "types", "requirement", "page", "classification", "source"]
+FIELDS = ["section", "section_title", "article", "article_title", "group", "types", "requirement", "page", "classification", "sd", "source"]
 
 if __name__ == "__main__":
     pdf, out = sys.argv[1], sys.argv[2]

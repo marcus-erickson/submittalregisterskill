@@ -49,7 +49,17 @@ KEYS = {
     "notes": ("Notes", 34),
     "full": ("Spec Text", 60),
     "ball_in_court": ("Ball in Court", 16),
+    # fields a spec's register-format paragraph commonly defines (plain text columns)
+    "line_no": ("Item No", 7),
+    "sd": ("SD No", 7),
+    "classification": ("Classification", 14),
+    "paragraph": ("Spec Paragraph", 12),
+    "transmittal": ("Transmittal No", 14),
+    "action_code": ("Action Code", 9),
+    "action_date": ("Action Date", 12),
 }
+# Plain text keys stored directly on the item (not in item["extra"]).
+SPEC_KEYS = ("line_no", "sd", "classification", "paragraph", "transmittal", "action_code", "action_date")
 DATE_KEYS = ("install_date", "actual_submit", "approval_date", "required_approval", "required_submit")
 FORMULA_DEPS = {
     "required_approval": ("install_date", "lead"),

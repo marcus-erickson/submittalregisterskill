@@ -40,6 +40,8 @@ Open the Division 01 submittal procedures (usually 01 33 00, 01 30 00 or 01 33 2
 
 If the manual has an owner-supplied submittal list, treat it as a cross-check only. Report disagreements with the sections actually in the manual. Do not copy it, because it is often carried over from another project.
 
+While you are in Division 01, look for a register format. If the spec defines the register columns (federal specs do, in 01 33 00 paragraph 1.7, as lettered columns), build a layout JSON from them and pass it with `--columns`. See `references/register-format.md` and `examples/columns-federal.json`. If the spec does not define columns, use the default layout and say in your summary which one you used.
+
 ### 3. Close the gaps
 
 Work through these in order, reading the section text each time:
@@ -106,7 +108,7 @@ The register is plain data (`scripts/register_model.py`). Output formats are ada
 | CSV | `build_register.py in work/Register.csv` | An export. Calculated dates are values, and the project default review time is written into each row. Not a good place to keep a register. |
 | Google Sheets | `build_register.py in work/register.sheets.json --format sheets` | Writes the cell values. Create the spreadsheet, then send each tab's `values` with the Sheets connector using USER_ENTERED so formulas and dates parse. Not yet tried against a live connector. |
 
-To change the columns, copy `scripts/columns.default.json`, edit it and pass `--columns`. A column is a key (default header and width) or an object with `key`, `header`, `width` and `aliases`. Known keys are listed in `scripts/columns.py`. Keys that start with `x_` are custom text columns, for example `x_trade`. `examples/columns-tracking.json` shows a layout with Ball in Court and a custom Trade column. Rules to remember:
+To change the columns, copy `scripts/columns.default.json`, edit it and pass `--columns`. A column is a key (default header and width) or an object with `key`, `header`, `width` and `aliases`. Known keys are listed in `scripts/columns.py`, including spec-defined fields such as `sd`, `classification`, `paragraph`, `transmittal`, `action_code` and `action_date`. Keys that start with `x_` are custom text columns, for example `x_trade`. `examples/columns-tracking.json` shows a layout with Ball in Court and a custom Trade column. Rules to remember:
 
 - A field with no column in the layout is not written to Excel or CSV. Ball in Court, for instance, needs a layout that includes it.
 - Calculated columns (required dates, days to due) are dropped with a warning if the columns they depend on are missing.

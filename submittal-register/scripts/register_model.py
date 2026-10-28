@@ -103,6 +103,8 @@ def blank_item(**kw):
         "types": "", "ref": "", "origin": "", "lead": "", "review": "", "notes": "",
         "needs_review": False, "review_note": "", "install_date": "", "actual_submit": "",
         "approval_date": "", "status": "Not Started", "ball_in_court": "", "extra": {},
+        "line_no": "", "sd": "", "classification": "", "paragraph": "", "transmittal": "",
+        "action_code": "", "action_date": "",
     }
     item.update(kw)
     return item
@@ -156,6 +158,9 @@ def load_rows(path, keep_div01=False):
             approval_date=iso(r.get("approval_date")),
             status=(r.get("status") or "").strip() or "Not Started",
             ball_in_court=(r.get("ball_in_court") or "").strip(),
+            **{k: (r.get(k) or "").strip() for k in
+               ("line_no", "sd", "classification", "paragraph", "transmittal",
+                "action_code", "action_date")},
         ))
     rows = [r for r in rows if r["section"] and r["description"]]
     if not keep_div01:  # Division 01 procedure text becomes project rules, not register rows
