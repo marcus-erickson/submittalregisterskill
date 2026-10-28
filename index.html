@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Submittal Register Skill</title>
-<meta name="description" content="A Claude skill that turns a construction project manual into a submittal register in Excel. Every row cites its spec section, paragraph and page.">
-<meta property="og:title" content="Submittal Register Skill">
-<meta property="og:description" content="From project manual to submittal register. Open source Claude skill for construction teams.">
+<title>Submittal Skills for Claude</title>
+<meta name="description" content="Three open source Claude skills for construction submittals: build a register from the project manual, keep it current from transmittals and stamped returns, and compare two registers.">
+<meta property="og:title" content="Submittal Skills for Claude">
+<meta property="og:description" content="Build, update and compare construction submittal registers. Open source Claude skills.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b3a4b'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='%23f2b705' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -56,6 +56,30 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(2.3rem,5.4vw,3.6rem)
 .btn.ghost:hover{background:#ffffff14}
 .cta-sub{margin:14px 0 0;font-size:.95rem}
 .cta-sub a{color:#fff}
+/* skill tiles in the hero */
+.hero .window{border-radius:12px;border-bottom:1px solid #00000022;transform:none;overflow:hidden}
+.hero .grid>div:first-child{padding-bottom:0}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px;padding-bottom:52px}
+@media (max-width:860px){.tiles{grid-template-columns:1fr}}
+.tile{background:#ffffff0f;border:1px solid #ffffff26;border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.tile .label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.tile h3{margin:0;font-family:var(--serif);font-size:1.6rem;line-height:1.1}
+.tile p{margin:0;color:#cdd9e0;font-size:.97rem}
+.tile .give{color:#9fb2be;font-size:.9rem}
+.tile .give b{color:#e6eef2}
+.tile .acts{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.tile .acts a.more{color:#fff;font-size:.93rem}
+.tile .btn{padding:10px 15px;gap:7px}
+
+/* one layout for every skill section */
+.io{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:auto 1fr;gap:4px 16px;max-width:760px;margin:0 0 6px;font-size:.97rem}
+.io b{color:var(--ink);white-space:nowrap}
+.io span{color:var(--muted)}
+h3.subh{font-size:.8rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:40px 0 14px;font-family:var(--sans);font-weight:700}
+.skillend{margin-top:26px}
+section.skill{border-top:1px solid var(--line);margin-top:68px}
+section.skill:first-of-type{border-top:0;margin-top:0}
+
 .hero .micro{margin:14px 0 0;color:#9fb2be;font-size:.88rem}
 .hero .grid>div:first-child{padding-bottom:44px}
 @media (max-width:860px){.hero .grid>div:first-child{padding-bottom:0}}
@@ -122,44 +146,29 @@ footer a{color:#fff}
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Submittal Register Skill">
+    <a class="brand" href="#top" aria-label="Submittal Skills for Claude">
       <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#254b60"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="#f2b705" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div><span>Submittal Register Skill</span><small>for Claude</small></div>
+      <div><span>Submittal Skills</span><small>for Claude</small></div>
     </a>
     <nav class="top" aria-label="Primary">
-      <a class="hide" href="#how">How it works</a>
-      <a class="hide" href="#intake">Keep it current</a>
+      <a class="hide" href="#register">Register</a>
+      <a class="hide" href="#intake">Intake</a>
       <a class="hide" href="#compare">Compare</a>
-      <a class="hide" href="#results">Results</a>
-      <a class="hide" href="#verify">Verify</a>
       <a class="gh" href="https://github.com/marcus-erickson/submittalregisterskill">GitHub</a>
     </nav>
   </div>
 </header>
 
 <div class="hero" id="top">
-  <div class="wrap grid">
-    <div>
-      <span class="eyebrow">An open source Claude skill for construction teams</span>
-      <h1>From project manual to submittal register</h1>
-      <p class="lead">Give Claude a specification PDF. It finds every submittal requirement, applies the project's Division 01 rules, and builds a register where each row cites its spec section, paragraph and page. Two companion skills keep it current from transmittals and stamped returns, and compare two registers to show what changed.</p>
-      <div class="cta">
-        <a class="btn primary" href="downloads/submittal-register.zip" download>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
-          Register skill
-        </a>
-        <a class="btn primary" href="downloads/submittal-intake.zip" download>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
-          Intake skill
-        </a>
-        <a class="btn primary" href="downloads/submittal-compare.zip" download>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
-          Compare skill
-        </a>
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <span class="eyebrow">Open source Claude skills for construction teams</span>
+        <h1>Three skills for the submittal register</h1>
+        <p class="lead">They all work on one register. Build it from the project manual, keep it current as submittals go out and come back, and compare any two versions to see what changed.</p>
+        <p class="cta-sub"><a href="https://github.com/marcus-erickson/submittalregisterskill">View source on GitHub</a></p>
+        <p class="micro">Free, MIT license. Needs Python 3.9+, pdftotext and openpyxl. The intake and compare downloads include the register scripts they use.</p>
       </div>
-      <p class="cta-sub"><a href="https://github.com/marcus-erickson/submittalregisterskill">View source on GitHub</a></p>
-      <p class="micro">Free, MIT license. Needs Python 3.9+, pdftotext and openpyxl. The intake and compare zips bundle the register scripts they use.</p>
-    </div>
     <div class="window" aria-label="Example of the register output">
       <div class="bar"><i></i><i></i><i></i><b>Submittal Register.xlsx</b></div>
       <table class="mock">
@@ -172,84 +181,85 @@ footer a{color:#fff}
         </tbody>
       </table>
     </div>
-  </div>
-</div>
 
-<div class="trust">
-  <div class="wrap">
-    <ul>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tested on 15 public project manuals</li>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Every row traces to a page</li>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Lead times are never guessed</li>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Unsure rows go to a Review Queue</li>
-    </ul>
+    </div>
+    <div class="tiles">
+      <div class="tile">
+        <span class="label">Skill 1</span>
+        <h3>Register</h3>
+        <p>Builds a submittal register from a project manual.</p>
+        <p class="give"><b>You give it:</b> a specification PDF.<br><b>You get:</b> a register where each row cites its spec section, paragraph and page.</p>
+        <div class="acts">
+          <a class="btn primary" href="downloads/submittal-register.zip" download>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
+            Download
+          </a>
+          <a class="more" href="#register">How it works</a>
+        </div>
+      </div>
+      <div class="tile">
+        <span class="label">Skill 2</span>
+        <h3>Intake</h3>
+        <p>Updates the register when a submittal goes out for review or comes back.</p>
+        <p class="give"><b>You give it:</b> a transmittal or a stamped return.<br><b>You get:</b> the matching line updated (status, dates, revision, ball in court) and an audit log.</p>
+        <div class="acts">
+          <a class="btn primary" href="downloads/submittal-intake.zip" download>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
+            Download
+          </a>
+          <a class="more" href="#intake">How it works</a>
+        </div>
+      </div>
+      <div class="tile">
+        <span class="label">Skill 3</span>
+        <h3>Compare</h3>
+        <p>Shows what changed between two registers for the same project.</p>
+        <p class="give"><b>You give it:</b> two registers and which one is old.<br><b>You get:</b> counts and percentages, what was added, deleted, moved or modified, and a workbook of the details.</p>
+        <div class="acts">
+          <a class="btn primary" href="downloads/submittal-compare.zip" download>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>
+            Download
+          </a>
+          <a class="more" href="#compare">How it works</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <main>
-<section id="how">
+<section class="skill" id="register">
   <div class="wrap">
-    <p class="kicker">How it works</p>
-    <h2>A script for structure, Claude for judgment</h2>
-    <p class="sub">The parts that must be exact are done by code. The parts that need reading comprehension are done by Claude, and anything uncertain is flagged for a person.</p>
+    <p class="kicker">Skill 1 · Register</p>
+    <h2>Build the register from the project manual</h2>
+    <p class="sub">A script reads the manual's structure and pulls every submittal requirement. Claude applies the project's Division 01 rules, fills gaps and flags what it is unsure about.</p>
+    <p class="io"><b>You give it</b><span>a specification PDF, and optionally install dates by spec section.</span><b>You get</b><span>a register in Excel, CSV, JSON or Google Sheets values. Each row cites its spec section, paragraph and page.</span></p>
+
+    <h3 class="subh">How it works</h3>
     <div class="cards">
-      <div class="card"><div class="num">1</div><h3>Read the structure</h3><p>A script indexes the manual's sections, finds each submittals article, and splits it into items with the spec section, paragraph and page.</p></div>
+      <div class="card"><div class="num">1</div><h3>Read the manual</h3><p>A script indexes the manual's sections, finds each submittals article, and splits it into items with the spec section, paragraph and page.</p></div>
       <div class="card"><div class="num">2</div><h3>Apply judgment</h3><p>Claude reads the Division 01 rules, adds closeout and administrative items, merges related ones, and flags what it is unsure about.</p></div>
-      <div class="card"><div class="num">3</div><h3>Build the register</h3><p>The register is stored as plain data and written out as Excel, CSV, JSON or Google Sheets values. The Excel version has project rules, a review queue and a section summary, with date formulas that update when you enter install dates.</p></div>
+      <div class="card"><div class="num">3</div><h3>Build the register</h3><p>The register is stored as plain data and written out in the format you choose. The Excel version has project rules, a review queue and a section summary, with date formulas that update when you enter install dates.</p></div>
     </div>
-    <p class="sub" style="margin-top:22px">A column layout file sets which columns appear, their headers and their order, and lets a team add its own, such as Ball in Court or Trade.</p>
-  </div>
-</section>
-
-<section id="intake">
-  <div class="wrap">
-    <p class="kicker">Keep it current</p>
-    <h2>Upload a transmittal or a stamped return, the register updates</h2>
-    <p class="sub">You choose the project by choosing its register, then upload the documents. Claude reads them, and code decides where each change goes and whether it makes sense.</p>
-    <div class="cards">
-      <div class="card"><div class="num">1</div><h3>Read and match</h3><p>Claude turns each document into events: sent for review, or returned approved, approved as noted, revise and resubmit, or rejected. The matcher finds the register line from the spec section and the wording.</p></div>
-      <div class="card"><div class="num">2</div><h3>Ask when unsure</h3><p>Lines that read alike, items that are not in the register, and documents whose project name does not fit the register go to you. Nothing is guessed.</p></div>
-      <div class="card"><div class="num">3</div><h3>Apply and log</h3><p>Status, dates, revision and ball in court are updated, a backup is kept, and every change goes in an audit log. Uploading the same document twice changes nothing.</p></div>
-    </div>
-    <div class="note"><b>How well does the matching work?</b> On two public registers (51 and 243 lines) with the wording shortened, reworded and put in plural, it was never confidently wrong, and it asked a person for a small share of lines that read nearly alike. It has not been tried on real project paperwork yet, so the first real documents are the real test.</div>
-  </div>
-</section>
-
-<section id="compare">
-  <div class="wrap">
-    <p class="kicker">Compare</p>
-    <h2>What changed between two registers</h2>
-    <p class="sub">Give Claude two registers for the same project and say which is old. It reports the differences that matter and leaves out the ones that do not.</p>
-    <div class="cards">
-      <div class="card"><div class="num">1</div><h3>Match</h3><p>Submittals are paired within each spec section, then across sections for anything that moved. Case, plurals, punctuation, row order and numbering are ignored.</p></div>
-      <div class="card"><div class="num">2</div><h3>Classify</h3><p>Added, deleted, moved to another section, or changed in type or approval requirement. Status and date changes go on their own sheet.</p></div>
-      <div class="card"><div class="num">3</div><h3>Summarize</h3><p>Claude settles the borderline pairs and opens with the size of the change: how many submittals matched and what percent of each register is unchanged, modified, deleted or added. Then the big picture: a new section, a block of items that changed type, a section that changed a lot.</p></div>
-    </div>
-    <div class="note"><b>One real test so far.</b> An owner's 1,519-line register against one generated from the specification gave a readable report with a handful of pairs to confirm. Items renamed and moved in the same step show as one deleted and one added.</div>
-    <p style="margin:18px 0 0"><a class="btn ghost" style="color:var(--ink);border-color:var(--line)" href="downloads/submittal-compare.zip" download>Compare skill (.zip)</a></p>
-  </div>
-</section>
-
-<section id="results">
-  <div class="wrap">
-    <p class="kicker">Results</p>
-    <h2>Tested on real manuals, not samples</h2>
-    <p class="sub">Every change to the extractor is rerun against all earlier manuals, so a fix for one project cannot quietly break another.</p>
+    <h3 class="subh">How it was tested</h3>
     <div class="stats">
       <div class="stat"><strong>15</strong><span>public documents, from a 2-page attachment to a 776-page manual</span></div>
       <div class="stat"><strong>2,300+</strong><span>submittal items extracted across them</span></div>
-      <div class="stat"><strong>2 styles</strong><span>5-digit and 6-digit CSI numbering, plus state DOT special specifications</span></div>
+      <div class="stat"><strong>98%</strong><span>of an owner's 1,519 submittal lines found on a two-volume federal specification</span></div>
       <div class="stat"><strong>0</strong><span>lead times guessed. Dates and lead times are always inputs.</span></div>
     </div>
-  </div>
-</section>
-
-<section id="verify">
-  <div class="wrap">
-    <p class="kicker">Verify</p>
-    <h2>Built to be checked, not trusted blindly</h2>
-    <p class="sub">A register that nobody can audit is worse than no register. The output is designed so a person can confirm it quickly.</p>
+    <div class="note"><b>Check the work.</b> The skill flags what it is unsure about, but a person should confirm those rows and spot-check pages against the manual before the register is issued. <a href="https://github.com/marcus-erickson/submittalregisterskill/blob/main/docs/verifying-results.md">Read the verification guide</a>.</div>
+    <h3 class="subh">What it does not do</h3>
     <div class="two">
+      <div class="panel limits">
+        <h3>Limits</h3>
+        <ul>
+          <li>It does not read scanned PDFs. It needs a text layer.</li>
+          <li>It runs one file at a time. For split volumes it lists every section it could not find.</li>
+          <li>Submittals written inside construction paragraphs come through as review rows, not finished rows.</li>
+          <li>The Google Sheets output follows the connector's format but has not been run against a live sheet.</li>
+        </ul>
+      </div>
       <div class="panel">
         <h3>How to check a register</h3>
         <ul>
@@ -258,41 +268,127 @@ footer a{color:#fff}
           <li><b>Compare rows per division</b> with the table of contents.</li>
           <li><b>Recompute three dates</b> by hand.</li>
         </ul>
-        <p style="margin:14px 0 0"><a href="https://github.com/marcus-erickson/submittalregisterskill/blob/main/docs/verifying-results.md">Read the full verification guide</a></p>
-      </div>
-      <div class="panel limits">
-        <h3>What it does not do</h3>
-        <ul>
-          <li>It does not read scanned PDFs. It needs a text layer.</li>
-          <li>It runs one file at a time. For split volumes, it lists every section it could not find.</li>
-          <li>Submittals written inside construction paragraphs come through as review rows, not finished rows.</li>
-          <li>Intake has no OCR, so scanned stamps are read by eye and are worth a second look. It does not read Gmail yet, because each project needs its own label or sender list first.</li>
-          <li>The Google Sheets output follows the connector's format but has not been run against a live sheet.</li>
-        </ul>
       </div>
     </div>
-  </div>
-</section>
-
-<section id="try">
-  <div class="wrap">
-    <p class="kicker">Try it</p>
-    <h2>Four steps</h2>
+    <h3 class="subh">Try it</h3>
     <div class="try">
       <ol class="plain">
-        <li>Download the zip and unzip it into your Claude skills, or copy the <code>submittal-register</code> folder from GitHub.</li>
+        <li>Download the Register skill and unzip it into your Claude skills, or copy the <code>submittal-register</code> folder from GitHub.</li>
         <li>Attach a project manual PDF and ask for a submittal register.</li>
         <li>Optionally give install dates by spec section so required submit dates calculate.</li>
-        <li>Later, add the intake skill, choose the register and upload transmittals or stamped returns. The repository has four fictional sample documents to try it on.</li>
       </ol>
 <pre>python3 scripts/extract.py manual.pdf draft.csv
 python3 scripts/build_register.py reviewed.csv \
-  Register.xlsx --rules rules.json --save-json
+  Register.xlsx --rules rules.json \
+  --save-json register.json</pre>
+    </div>
+    <p class="skillend"><a class="btn primary" href="downloads/submittal-register.zip" download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Download the Register skill</a></p>
+  </div>
+</section>
 
-python3 scripts/intake.py match register.json events.json -o matches.json
+<section class="skill" id="intake">
+  <div class="wrap">
+    <p class="kicker">Skill 2 · Intake</p>
+    <h2>Update the register from a transmittal or a stamped return</h2>
+    <p class="sub">You choose the project by choosing its register, then upload the documents. Claude reads them, and code decides where each change goes and whether it makes sense.</p>
+    <p class="io"><b>You give it</b><span>the register (<code>register.json</code>) and one or more transmittals or stamped review returns.</span><b>You get</b><span>the matching lines updated with status, dates, revision and ball in court, a backup of the register, and an audit log.</span></p>
+
+    <h3 class="subh">How it works</h3>
+    <div class="cards">
+      <div class="card"><div class="num">1</div><h3>Read the document</h3><p>Claude turns each document into events: sent for review, or returned approved, approved as noted, revise and resubmit, or rejected.</p></div>
+      <div class="card"><div class="num">2</div><h3>Match to the register</h3><p>The matcher finds the register line from the spec section and the wording. Lines that read alike, items not in the register, and documents whose project does not fit the register go to you. Nothing is guessed.</p></div>
+      <div class="card"><div class="num">3</div><h3>Apply and log</h3><p>Each change is checked, written to the register, and added to an audit log, with a backup kept. Uploading the same document twice changes nothing.</p></div>
+    </div>
+    <h3 class="subh">How it was tested</h3>
+    <div class="note" style="margin-top:0"><b>Two public registers and four sample documents.</b> With the wording shortened, reworded and put in plural on registers of 51 and 243 lines, the matcher was never confidently wrong. It asked a person about a small share of lines that read nearly alike. It has not been tried on real project paperwork yet, so the first real documents are the real test.</div>
+    <h3 class="subh">What it does not do</h3>
+    <div class="two">
+      <div class="panel limits">
+        <h3>Limits</h3>
+        <ul>
+          <li>It has no OCR, so scanned stamps are read by eye and are worth a second look.</li>
+          <li>It does not read Gmail yet. Each project needs its own label or sender list first, so that a submittal cannot land on the wrong project.</li>
+          <li>It updates registers saved as <code>register.json</code>, which the Register skill writes with <code>--save-json</code>.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Safeguards</h3>
+        <ul>
+          <li><b>Wrong project:</b> a document whose project name does not fit the register is held back.</li>
+          <li><b>Out of order:</b> a return with no earlier submission is reported as a conflict, not applied.</li>
+          <li><b>Repeats:</b> the same document uploaded twice changes nothing.</li>
+        </ul>
+      </div>
+    </div>
+    <h3 class="subh">Try it</h3>
+    <div class="try">
+      <ol class="plain">
+        <li>Download the Intake skill and unzip it into your Claude skills.</li>
+        <li>Choose the register, then upload a transmittal or a stamped return.</li>
+        <li>Or start with the four fictional sample documents in the repository: a transmittal, a typed review return, a scanned stamped cover sheet and a transmittal for a different project.</li>
+      </ol>
+<pre>python3 scripts/intake.py match register.json events.json -o matches.json
 python3 scripts/intake.py apply register.json matches.json --dry-run</pre>
     </div>
-    <div class="note"><b>Check the work.</b> The skill flags what it is unsure about, but a person should confirm those rows and spot-check pages against the manual before the register is issued.</div>
+    <p class="skillend"><a class="btn primary" href="downloads/submittal-intake.zip" download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Download the Intake skill</a></p>
+  </div>
+</section>
+
+<section class="skill" id="compare">
+  <div class="wrap">
+    <p class="kicker">Skill 3 · Compare</p>
+    <h2>Compare two registers and see what changed</h2>
+    <p class="sub">The script pairs up the submittals in the two registers and drops the noise. Claude settles the borderline pairs and writes the summary.</p>
+    <p class="io"><b>You give it</b><span>two registers for the same project (Excel, CSV or <code>register.json</code>) and which one is old.</span><b>You get</b><span>the size of the change as counts and percentages, what was added, deleted, moved or modified, and a workbook of the details.</span></p>
+
+    <h3 class="subh">How it works</h3>
+    <div class="cards">
+      <div class="card"><div class="num">1</div><h3>Match the two registers</h3><p>Submittals are paired within each spec section, then across sections for anything that moved. Case, plurals, punctuation, row order and numbering are ignored.</p></div>
+      <div class="card"><div class="num">2</div><h3>Classify the differences</h3><p>Each difference is added, deleted, moved to another section, or changed in type or approval requirement. Status and date changes go on their own sheet.</p></div>
+      <div class="card"><div class="num">3</div><h3>Summarize the change</h3><p>Claude settles the borderline pairs and opens with how many submittals matched and what percent of each register is unchanged, modified, deleted or added. Then the big picture: a new section, a block of items that changed type.</p></div>
+    </div>
+    <h3 class="subh">How it was tested</h3>
+    <div class="stats">
+      <div class="stat"><strong>1,519</strong><span>lines in an owner's register, compared with 1,556 in one generated from the specification</span></div>
+      <div class="stat"><strong>97.1%</strong><span>of the owner's lines unchanged, 0.9% modified, 2.0% deleted</span></div>
+      <div class="stat"><strong>4.4%</strong><span>of the generated register added, most of it rows still flagged for review</span></div>
+      <div class="stat"><strong>86</strong><span>wording-only differences counted but not listed</span></div>
+    </div>
+    <div class="note"><b>One real pair so far.</b> The figures above come from a single project, and the matching was adjusted while looking at it. Automated tests check that known added, deleted, moved and modified items are found and that reordering, renumbering and rewording are not reported.</div>
+    <h3 class="subh">What it does not do</h3>
+    <div class="two">
+      <div class="panel limits">
+        <h3>Limits</h3>
+        <ul>
+          <li>An item that is both renamed and moved to another section shows as one deleted and one added.</li>
+          <li>Items that repeat in several places, such as one product under product data, samples and O&amp;M, pair in order and can land on the wrong twin.</li>
+          <li>It does not read PDFs. A PDF register must be turned into rows first.</li>
+          <li>It compares the registers as written. It does not say which one matches the specification.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>What counts as a difference</h3>
+        <ul>
+          <li><b>Added or deleted:</b> a submittal in one register and not the other.</li>
+          <li><b>Moved:</b> the same submittal under a different spec section.</li>
+          <li><b>Modified:</b> a changed type, a changed approval marking, or a materially different description.</li>
+          <li><b>Ignored:</b> case, plurals, punctuation, word order, extra detail in a description, row order and numbering.</li>
+        </ul>
+      </div>
+    </div>
+    <h3 class="subh">Try it</h3>
+    <div class="try">
+      <ol class="plain">
+        <li>Download the Compare skill and unzip it into your Claude skills.</li>
+        <li>Give Claude both registers and say which one is old.</li>
+        <li>Read the summary, then open the workbook for the details.</li>
+      </ol>
+<pre>python3 scripts/compare_registers.py \
+  old.xlsx new.xlsx \
+  --xlsx Register-Comparison.xlsx \
+  -o compare.json</pre>
+    </div>
+    <p class="skillend"><a class="btn primary" href="downloads/submittal-compare.zip" download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Download the Compare skill</a></p>
   </div>
 </section>
 </main>
@@ -300,7 +396,7 @@ python3 scripts/intake.py apply register.json matches.json --dry-run</pre>
 <footer>
   <div class="wrap">
     <div>Built by Marcus Erickson. MIT license.</div>
-    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Register zip</a> · <a href="downloads/submittal-intake.zip" download>Intake zip</a> · <a href="downloads/submittal-compare.zip" download>Compare zip</a></div>
+    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Register skill</a> · <a href="downloads/submittal-intake.zip" download>Intake skill</a> · <a href="downloads/submittal-compare.zip" download>Compare skill</a></div>
     <div style="flex-basis:100%;font-size:.84rem;color:#8fa3b0">The public project manuals used for testing are not included in the repository.</div>
   </div>
 </footer>
