@@ -7,7 +7,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 
-NUM = r"(?:\d{2}\s?\d{2}\s?\d{2}(?:\.\d+)?|\d{5})(?!\d)"
+NUM = r"(?:\d{2}\s?\d{2}\s?\d{2}(?:\.\d+(?: \d{2}(?!\d))?)?|\d{5})(?!\d)"  # federal numbers can end ".00 40"
 TOC_LINE = re.compile(rf"^\s*(?:Section\s+)?({NUM})\s*[-–—]?\s*([A-Za-z].*?)\s*$", re.I)
 PAGEREF = re.compile(r"(?:\s*\.{3,}.*|\s{2,}[\w.]+(?:\s*[-–]\s*[\w.]+)?)\s*$")
 
@@ -23,8 +23,9 @@ class Section:
 
 
 def norm(num: str) -> str:
-    d = re.sub(r"\s", "", num)
-    base, _, suffix = d.partition(".")
+    head, _, suffix = num.strip().partition(".")
+    base = re.sub(r"\s", "", head)
+    suffix = re.sub(r"\s+", " ", suffix.strip())
     if len(base) == 5:
         out = base
     else:

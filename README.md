@@ -25,7 +25,7 @@ See [submittal-register/README.md](submittal-register/README.md) and [submittal-
 | `submittal-intake/` | The intake skill: `SKILL.md`, the matcher and apply script, sample documents |
 | `docs/` | Test log and a detailed analysis of one 661-page manual |
 | `downloads/` | `submittal-register.zip` and `submittal-intake.zip`, rebuilt with `tools/build-zip.sh` after any change to either skill |
-| `tests/` | `regress.py` re-runs the extractor on your own manuals and compares counts to a baseline. `test_formats.py` checks the output formats and the date math against LibreOffice. `test_intake.py` covers matching, the wrong-project check, resubmittals and repeat runs. `eval_matching.py` measures how often the matcher is right, asked or wrong |
+| `tests/` | `regress.py` re-runs the extractor on your own manuals and compares counts to a baseline. `test_formats.py` checks the output formats and the date math against LibreOffice. `test_extract_sd.py` covers the federal SD-list parser. `test_intake.py` covers matching, the wrong-project check, resubmittals and repeat runs. `eval_matching.py` measures how often the matcher is right, asked or wrong |
 
 ## Status
 

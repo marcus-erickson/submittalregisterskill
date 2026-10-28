@@ -30,6 +30,8 @@ This builds a section index from the table of contents, then writes `draft.csv` 
 - `Division 01 procedure`: text from the sections that define submittal procedures. These are rules, not register rows.
 - `REVIEW: buried requirement` and `REVIEW: no article`: possible submittals the parser could not place. Each needs your decision.
 
+Federal (UFGS) specifications list submittals as `SD-03 Product Data` followed by one item per paragraph, some ending `; G` or `; S`. The script gives each item its own row, typed from the SD number, with the marking in a `classification` column. Copy that marking into the row notes (G means Government approval, S means sustainability reporting). Rows flagged `REVIEW: sentence in SD list` are explanatory text inside a list: keep one only if it names something to submit. These manuals usually repeat an item in several SD groups (a product under SD-03, SD-04 and SD-10). Keep those as separate rows because each group is reviewed on its own.
+
 To read any part of the manual, use the page ranges from `python3 scripts/specindex.py <manual.pdf>` and then `pdftotext -layout -f <first> -l <last> <manual.pdf> -`.
 
 ### 2. Read the project rules

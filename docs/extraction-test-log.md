@@ -66,6 +66,17 @@ In 7049 and 6154 the submittal requirements are written as sentences inside cons
 
 A Vol I PDF can carry a table of contents for both volumes (MSU Daniel lists Divisions 21 to 26 that live in Vol II). The extractor now reports each such section as listed in the table of contents but not found in the PDF, so the register is not silently incomplete. Run each volume separately and combine the drafts.
 
+## Federal (UFGS) manuals: Charlotte ANG Security Forces Building, two volumes
+
+Submittals are written as SD lists (`SD-03 Product Data`, then one item per paragraph, some ending `; G` or `; S`). The first run found 341 rows in 2,155 pages because the extractor treated each list as a single item. Four fixes followed, each found by comparing against the owner's own 1,519-line register (Attachment 11 of the bid package):
+
+- SD lists are split into one row per item, typed from the SD number (SD-02 shop drawings, 03 product data, 04 samples, 05 design data, 06 test reports, 07 certificates, 08 manufacturer's instructions, 10 O&M) and carrying the G or S marking in a `classification` column.
+- Section numbers with a second suffix (`23 31 13.00 40`, `01 32 01.00 10`) were missing from the index, which hid 27 sections. Both the table of contents reader and the section locator now accept them.
+- A wrapped `PROCEDURES:` line was read as the next article heading and cut 20 sections short.
+- Entries that read as sentences inside an SD list are kept but flagged for review instead of becoming rows.
+
+Result against the owner register: 1,490 of 1,519 lines matched (98.1%), 99.4% of our rows were in the owner's list, all 121 sections present on both sides, and 1,482 of 1,490 matches carried the same G or S marking. Of the 29 owner lines we lack, most are the same item listed again at a different paragraph. The fixes were tuned while looking at this comparison, so treat these figures as an upper bound for the next federal manual. Section-level spot check: 200 random rows all found on or next to the cited page.
+
 ## Known gaps (candidates for the Claude pass in the skill)
 
 - Basic requirements sections in Divisions 22, 23 and 26 often carry a Submittals article that is really procedure (copies, signatures, response to review). These rows come through as items, and the Claude pass should move them to Project Rules (seen in Radiology Vol B, Bacliff 26 05 00)

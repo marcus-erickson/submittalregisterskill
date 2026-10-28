@@ -143,6 +143,18 @@ def section_text(pages, sec, noise):
     return clean(txt, noise)
 
 
+def _wrapped_line(text: str, pos: int) -> bool:
+    """True when the line at `pos` continues the line above it (for example a wrapped `PROCEDURES:`),
+    because a real article heading follows a blank line."""
+    if re.match(r"\s*\d", text[pos:pos + 12]):
+        return False  # numbered headings are real, even inside a table of contents
+    prev_end = text.rfind("\n", 0, pos)  # newline that ends the previous line
+    if prev_end <= 0:
+        return False
+    prev_start = text.rfind("\n", 0, prev_end) + 1
+    return bool(text[prev_start:prev_end].strip())
+
+
 def submittal_articles(text: str):
     """Return (article_ref, title, body, start_offset, end_offset) for each SUBMITTALS article, any part."""
     part_pos = [m.start() for m in PART.finditer(text)]
@@ -157,6 +169,8 @@ def submittal_articles(text: str):
             continue  # unnumbered headings count only when they are SUBMITTALS in Part 1
         end = len(text)
         nxt = ANY_ARTICLE.search(text, m.end())
+        while nxt and _wrapped_line(text, nxt.start()):
+            nxt = ANY_ARTICLE.search(text, nxt.end())
         if nxt:
             end = min(end, nxt.start())
         for pp in part_pos:
@@ -167,9 +181,80 @@ def submittal_articles(text: str):
     return out
 
 
+SD_HEAD = re.compile(r"^\s*SD-(\d{2})\s+(\S.*?)\s*$")
+PAGE_FOOT = re.compile(r"^\s*SECTION\s+[\dA-Z .]+\s+Page\s+\d+\s*$", re.I)
+GOVT_CLASS = re.compile(r"\s*;\s*([A-Z]{1,3}(?:\s*,\s*[A-Z]{1,3})*)\s*$")
+WRAP_MIN = 60  # a wrapped line runs to about column 70
+SD_PROSE = re.compile(r"^(?:Submit|Include|Provide|Furnish|As applicable|Provide the following|Note)\b|:\s*$")
+# an SD-list entry that reads like a sentence, not an item name: probably explanatory text, so it is flagged
+SD_SENTENCE = re.compile(r"^.{91,}[.]$|\b(?:shall|must|should)\b|^(?:Prior to|Where|Indicate|Certify|Written|A copy of)\b")
+SD_END = re.compile(r"^\s*(?:PART\s+\d\b|\d{1,2}\.\d{1,2}(?:\.\d+)*\s+\S)")
+SD_TYPE = {"02": "SD", "03": "PD", "04": "SAM", "05": "CALC", "06": "TEST", "07": "CERT",
+           "08": "PD", "09": "TEST", "10": "OM"}
+
+
+def parse_sd_items(body: str):
+    """Federal (UFGS) style: `SD-03 Product Data` headings with one item per paragraph beneath,
+    each optionally ending in `; G` (government approval) or `; S`. One row per item."""
+    items, head, block, prev_len = [], None, [], 0
+
+    def flush():
+        nonlocal block
+        if block and head:
+            text = " ".join(block)
+            if items and text[:1].islower() and items[-1]["sd"] == head[0] and not GOVT_CLASS.search(items[-1]["text"]):
+                items[-1]["text"] += " " + text  # wrapped across a page break
+            else:
+                items.append({"letter": f"SD-{head[0]}", "text": text, "group": f"SD-{head[0]} {head[1]}", "sd": head[0]})
+        block = []
+
+    for line in body.split("\n"):
+        if PAGE_FOOT.match(line):
+            flush()
+            continue
+        if head and SD_END.match(line):
+            break  # the list is over, the next numbered paragraph or Part has started
+        m = SD_HEAD.match(line)
+        if m:
+            flush()
+            head = (m.group(1), m.group(2))
+            continue
+        if not line.strip():
+            flush()
+            continue
+        if head:
+            parts = re.split(r"(?<=;\s[GS])(?=[A-Z][a-z])", line.strip())  # two items run together: `...; GBracing`
+            if len(parts) > 1:
+                for part in parts:
+                    if block:
+                        flush()
+                    block.append(part)
+                prev_len = len(line.rstrip())
+                continue
+            # Items are usually separated by a blank line, but some sections list them on consecutive
+            # lines. A line that ends in a `; G` marker, or a short line (it did not reach the right
+            # margin, so it was not wrapped), closes the item.
+            if block and (GOVT_CLASS.search(block[-1]) or prev_len < WRAP_MIN):
+                flush()
+            block.append(line.strip())
+            prev_len = len(line.rstrip())
+    flush()
+    items = [it for it in items if not SD_PROSE.search(it["text"])]
+    for it in items:
+        m = GOVT_CLASS.search(it["text"])
+        it["classification"] = ""
+        if m:
+            it["classification"] = re.sub(r"\s+", "", m.group(1))
+            it["text"] = it["text"][:m.start()].strip()
+    return items
+
+
 def parse_items(body: str):
     """Split an article into items. A short lettered heading such as
     `A. Submittals for Review:` with numbered children yields the children."""
+    sd_items = parse_sd_items(body)
+    if sd_items:
+        return sd_items
     tops, cur, sub = [], None, None
     for line in body.split("\n"):
         if not line.strip():
@@ -274,13 +359,18 @@ def extract(pdf, noise=None):
                 rows.append({
                     "section": sec.number,
                     "section_title": sec.title,
-                    "article": (it["letter"] if re.match(r"\d+\.\d", it["letter"]) else ".".join(x for x in (ref, it["letter"]) if x)) or "-",
+                    "article": (f"{ref} {it['letter']}" if it["letter"].startswith("SD-") else
+                                it["letter"] if re.match(r"\d+\.\d", it["letter"]) else
+                                ".".join(x for x in (ref, it["letter"]) if x)) or "-",
                     "article_title": atitle.title(),
                     "group": it["group"],
-                    "types": "+".join(classify_with_context(t, it["group"], atitle)),
+                    "types": SD_TYPE.get(it.get("sd", ""), "") or "+".join(classify_with_context(t, it["group"], atitle)),
                     "requirement": t,
                     "page": page_of(cp, bounds, sec.start_page, off, " ".join(it["text"].split())),
-                    "source": "Division 01 procedure" if is_div01_procedure(sec) else "Submittals article",
+                    "classification": it.get("classification", ""),
+                    "source": ("Division 01 procedure" if is_div01_procedure(sec) else
+                               "REVIEW: sentence in SD list" if it.get("sd") and SD_SENTENCE.search(t) else
+                               "Submittals article"),
                 })
         spans = [(a[3], a[4]) for a in arts]
         body_start = next((m.start() for m in PART.finditer(text) if m.group(1) == "1"), 0)
@@ -339,7 +429,7 @@ def leadin_items(text, spans, body_start):
     return out
 
 
-FIELDS = ["section", "section_title", "article", "article_title", "group", "types", "requirement", "page", "source"]
+FIELDS = ["section", "section_title", "article", "article_title", "group", "types", "requirement", "page", "classification", "source"]
 
 if __name__ == "__main__":
     pdf, out = sys.argv[1], sys.argv[2]
