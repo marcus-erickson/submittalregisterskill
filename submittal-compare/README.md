@@ -12,6 +12,8 @@ Use it when a register has been revised, when an owner's register needs checking
 4. Claude writes a short summary that leads with themes (a new section, a block of items that changed type, a section that changed a lot) and groups the rest by section and type.
 5. You get `Register-Comparison.xlsx` with Added, Deleted, Modified, Moved, Tracking, To confirm and Wording only sheets.
 
+The summary opens with the size of the change: how many submittals matched, and what share of the old register is unchanged, modified or moved, or deleted, and what share of the new register is added.
+
 Status, dates and ball in court differences are reported on their own sheet as progress changes, so they do not bury scope changes.
 
 ## Install
