@@ -80,6 +80,14 @@ assert kinds.count("type") == 1 and kinds.count("approval") == 1, kinds
 assert len(res["moved"]) == 1 and res["moved"][0]["section_new"] == "88 88 88" and res["moved"][0]["section_old"] == old_sec
 assert len(res["tracking"]) == 1 and any(t["field"] == "Status" for t in res["tracking"][0]["tracking"])
 assert any(s["section"] == "99 99 99" and s["status"] == "new section" for s in secs)
+# percentages: 51 old rows, 3 deleted, 3 modified or moved (type, approval, move), the rest unchanged
+out = dict(res, counts={"old": len(old), "new": len(newi)})
+m = res["matching"]
+assert m["matched"] == len(old) - 3 and m["changed"] == 3 and m["unchanged"] == len(old) - 6, m
+out["percent"] = cmp_.percentages(out)
+p = out["percent"]
+assert p["deleted_pct_of_old"] == round(100 * 3 / len(old), 1) and p["added_pct_of_new"] == round(100 * 2 / len(newi), 1), p
+assert round(p["unchanged_pct_of_old"] + p["modified_or_moved_pct_of_old"] + p["deleted_pct_of_old"], 0) == 100, p
 
 # 4. a completely reworded line is offered for confirmation, and a resolution settles it
 renamed = copy.deepcopy(rows)
@@ -97,7 +105,7 @@ out = subprocess.run([sys.executable, os.path.join(ROOT, "submittal-compare", "s
                       os.path.join(tmp, "edited.json"), "-o", os.path.join(tmp, "r.json"), "--xlsx", os.path.join(tmp, "r.xlsx")],
                      capture_output=True, text=True)
 assert out.returncode == 0, out.stderr
-assert "Added 2, deleted 3" in out.stdout, out.stdout
+assert "Added 2, deleted 3" in out.stdout and "Matched 48" in out.stdout and "% of the old register" not in out.stdout.split("\n")[0], out.stdout
 from openpyxl import load_workbook  # noqa: E402
 wb = load_workbook(os.path.join(tmp, "r.xlsx"))
 assert {"Summary", "By section", "Added", "Deleted", "Modified", "Moved", "Tracking", "To confirm", "Wording only"} <= set(wb.sheetnames)

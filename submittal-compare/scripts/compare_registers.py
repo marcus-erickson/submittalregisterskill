@@ -234,6 +234,8 @@ def compare(old, new, min_match=0.5, resolutions=()):
             res["to_confirm"].append({"old_id": o["id"], "new_id": best[1]["id"], "section_old": o["sec"], "section_new": best[1]["sec"],
                                       "old": short(o), "new": short(best[1]), "score": round(best[0], 2),
                                       "why": "Deleted here and added there with some words in common. A rename, or two different submittals?"})
+    changed = {m["old_id"] for m in res["modified"]} | {m["old_id"] for m in res["moved"]}
+    res["matching"] = {"matched": len(pairs), "unchanged": len(pairs) - len(changed), "changed": len(changed)}
     return res
 
 
@@ -301,6 +303,15 @@ def write_xlsx(path, out):
     ws.append(["Old register", out["old_label"], f"{out['counts']['old']} submittals"])
     ws.append(["New register", out["new_label"], f"{out['counts']['new']} submittals"])
     ws.append([])
+    p = out["percent"]
+    ws.append(["Matched submittals", p["matched"]])
+    ws.append(["Unchanged", p["unchanged"], f"{p['unchanged_pct_of_old']}% of the old register"])
+    ws.append(["Modified or moved", p["modified_or_moved"], f"{p['modified_or_moved_pct_of_old']}% of the old register"])
+    ws.append(["Deleted", p["deleted"], f"{p['deleted_pct_of_old']}% of the old register"])
+    ws.append(["Added", p["added"], f"{p['added_pct_of_new']}% of the new register"])
+    ws.append(["Old items affected (modified, moved or deleted)", f"{p['old_items_affected_pct']}%"])
+    ws.append(["New items that are added or changed", f"{p['new_items_new_or_changed_pct']}%"])
+    ws.append([])
     for k in ("added", "deleted", "modified", "moved", "tracking", "minor", "to_confirm"):
         nice = {"minor": "Wording differences ignored", "tracking": "Tracking changes (status, dates)", "to_confirm": "Pairs to confirm"}.get(k, k.capitalize())
         ws.append([nice, len(out[k])])
@@ -311,10 +322,9 @@ def write_xlsx(path, out):
     ws.column_dimensions["A"].width = 44
     ws.column_dimensions["B"].width = 50
     ws.column_dimensions["C"].width = 20
-    for r in ws.iter_rows(min_row=1, max_row=10):
+    for r in ws.iter_rows(min_row=1, max_row=ws.max_row - len(out["themes"])):
         if r[0].value:
             r[0].font = Font(bold=True)
-    ws.cell(row=ws.max_row - len(out["themes"]), column=1).font = Font(bold=True)
     sheet("By section", ["Section", "Title", "Old", "New", "Added", "Deleted", "Modified", "Status"],
           [[r["section"], r["title"], r["old_count"], r["new_count"], r["added"], r["deleted"], r["modified"], r["status"]] for r in out["sections"]],
           [16, 44, 7, 7, 8, 9, 9, 18])
@@ -331,9 +341,26 @@ def write_xlsx(path, out):
     wb.save(path)
 
 
+def percentages(out):
+    """How much of each register is affected. Old-side figures use the old register as the base, added uses the new."""
+    c, m = out["counts"], out["matching"]
+    pct = lambda x, base: round(100.0 * x / base, 1) if base else 0.0
+    changed_old = m["changed"] + len(out["deleted"])
+    return {"matched": m["matched"], "unchanged": m["unchanged"],
+            "unchanged_pct_of_old": pct(m["unchanged"], c["old"]),
+            "modified_or_moved": m["changed"], "modified_or_moved_pct_of_old": pct(m["changed"], c["old"]),
+            "deleted": len(out["deleted"]), "deleted_pct_of_old": pct(len(out["deleted"]), c["old"]),
+            "added": len(out["added"]), "added_pct_of_new": pct(len(out["added"]), c["new"]),
+            "old_items_affected_pct": pct(changed_old, c["old"]),
+            "new_items_new_or_changed_pct": pct(len(out["added"]) + m["changed"], c["new"])}
+
+
 def digest(out):
-    c = out["counts"]
+    c, p = out["counts"], out["percent"]
     lines = [f"Old: {out['old_label']} ({c['old']} submittals)   New: {out['new_label']} ({c['new']} submittals)",
+             f"Matched {p['matched']} submittals. Of the old register: {p['unchanged']} unchanged ({p['unchanged_pct_of_old']}%), "
+             f"{p['modified_or_moved']} modified or moved ({p['modified_or_moved_pct_of_old']}%), {p['deleted']} deleted ({p['deleted_pct_of_old']}%). "
+             f"Of the new register: {p['added']} added ({p['added_pct_of_new']}%).",
              f"Added {len(out['added'])}, deleted {len(out['deleted'])}, modified {len(out['modified'])}, moved {len(out['moved'])}; "
              f"{len(out['minor'])} wording-only differences ignored; {len(out['tracking'])} with tracking changes; "
              f"{len(out['to_confirm'])} pairs to confirm."]
@@ -373,6 +400,7 @@ def main():
     sections, themes = roll_up(old, new, res)
     out = dict(res, sections=sections, themes=themes, counts={"old": len(old), "new": len(new)},
                old_label=a.old_label or os.path.basename(a.old), new_label=a.new_label or os.path.basename(a.new))
+    out["percent"] = percentages(out)
     if a.out:
         with open(a.out, "w", encoding="utf-8") as fh:
             json.dump(out, fh, indent=1, ensure_ascii=False)

@@ -53,7 +53,7 @@ Run step 2 again with `--resolve work/resolutions.json`. Do not guess. If you ca
 
 Lead with the picture, not the list. Use this order and stop when there is nothing to say:
 
-1. One line: how many submittals in each register and the net change.
+1. One line with the size of the change: how many submittals in each register, how many matched, and the percentages from the digest (unchanged, modified or moved, and deleted as a share of the old register; added as a share of the new one). Always give both the counts and the percentages.
 2. The themes from the digest, in plain words: whole sections added or removed, sections that changed a lot, a type or approval change that hit many items, a block of submittals that moved sections.
 3. Added and deleted, grouped by spec section and type. Name individual items only when there are fewer than about 15 in a section or when one looks important (long lead equipment, a Government-approval item). Otherwise say "12 product data items added to 23 09 00".
 4. Modified: group by what changed (type, approval) and give two or three examples of each group.
