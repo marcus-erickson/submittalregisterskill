@@ -197,6 +197,7 @@ def parse_sd_items(body: str):
     """Federal (UFGS) style: `SD-03 Product Data` headings with one item per paragraph beneath,
     each optionally ending in `; G` (government approval) or `; S`. One row per item."""
     items, head, block, prev_len = [], None, [], 0
+    body = re.sub(r"(?<=[a-z0-9)])(?=SD-\d{2}\s+[A-Z])", "\n", body)  # `...MortarSD-10 Operation...` runs two lines together
 
     def flush():
         nonlocal block

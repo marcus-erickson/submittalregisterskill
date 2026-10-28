@@ -126,6 +126,7 @@ footer a{color:#fff}
     <nav class="top" aria-label="Primary">
       <a class="hide" href="#how">How it works</a>
       <a class="hide" href="#intake">Keep it current</a>
+      <a class="hide" href="#compare">Compare</a>
       <a class="hide" href="#results">Results</a>
       <a class="hide" href="#verify">Verify</a>
       <a class="gh" href="https://github.com/marcus-erickson/submittalregisterskill">GitHub</a>
@@ -204,6 +205,21 @@ footer a{color:#fff}
   </div>
 </section>
 
+<section id="compare">
+  <div class="wrap">
+    <p class="kicker">Compare</p>
+    <h2>What changed between two registers</h2>
+    <p class="sub">Give Claude two registers for the same project and say which is old. It reports the differences that matter and leaves out the ones that do not.</p>
+    <div class="cards">
+      <div class="card"><div class="num">1</div><h3>Match</h3><p>Submittals are paired within each spec section, then across sections for anything that moved. Case, plurals, punctuation, row order and numbering are ignored.</p></div>
+      <div class="card"><div class="num">2</div><h3>Classify</h3><p>Added, deleted, moved to another section, or changed in type or approval requirement. Status and date changes go on their own sheet.</p></div>
+      <div class="card"><div class="num">3</div><h3>Summarize</h3><p>Claude settles the borderline pairs and leads with the big picture: a new section, a block of items that changed type, a section that changed a lot.</p></div>
+    </div>
+    <div class="note"><b>One real test so far.</b> An owner's 1,519-line register against one generated from the specification gave a readable report with a handful of pairs to confirm. Items renamed and moved in the same step show as one deleted and one added.</div>
+    <p style="margin:18px 0 0"><a class="btn ghost" style="color:var(--ink);border-color:var(--line)" href="downloads/submittal-compare.zip" download>Compare skill (.zip)</a></p>
+  </div>
+</section>
+
 <section id="results">
   <div class="wrap">
     <p class="kicker">Results</p>
@@ -274,7 +290,7 @@ python3 scripts/intake.py apply register.json matches.json --dry-run</pre>
 <footer>
   <div class="wrap">
     <div>Built by Marcus Erickson. MIT license.</div>
-    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Register zip</a> · <a href="downloads/submittal-intake.zip" download>Intake zip</a></div>
+    <div><a href="https://github.com/marcus-erickson/submittalregisterskill">Source</a> · <a href="https://github.com/marcus-erickson/submittalregisterskill/tree/main/docs">Test log</a> · <a href="downloads/submittal-register.zip" download>Register zip</a> · <a href="downloads/submittal-intake.zip" download>Intake zip</a> · <a href="downloads/submittal-compare.zip" download>Compare zip</a></div>
     <div style="flex-basis:100%;font-size:.84rem;color:#8fa3b0">The public project manuals used for testing are not included in the repository.</div>
   </div>
 </footer>

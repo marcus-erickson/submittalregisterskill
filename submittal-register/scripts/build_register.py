@@ -34,18 +34,7 @@ import sys
 import columns as colmod
 import register_model as model
 from adapters import ADAPTERS, EXTENSIONS
-
-
-def input_kind(path):
-    ext = os.path.splitext(path)[1].lower()
-    if ext in (".xlsx", ".xlsm"):
-        return "xlsx"
-    if ext == ".json":
-        return "json"
-    with open(path, newline="", encoding="utf-8") as fh:
-        header = next(csv.reader(fh), [])
-    # extraction CSVs use snake_case names; a register export uses the layout headers
-    return "extraction" if "section" in header and "description" in header or "requirement" in header else "csv"
+from register_io import load_input
 
 
 def main():
@@ -66,12 +55,8 @@ def main():
     a = ap.parse_args()
 
     layout = colmod.load(a.columns)
-    kind = input_kind(a.input)
     try:
-        if kind == "extraction":
-            register = model.new_register(items=model.load_rows(a.input, a.keep_div01))
-        else:
-            register = ADAPTERS["csv" if kind == "csv" else kind].read(a.input, layout)
+        register = load_input(a.input, layout, a.keep_div01)
     except ValueError as e:
         sys.exit(str(e))
 
